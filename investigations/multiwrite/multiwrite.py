@@ -1,3 +1,5 @@
+# Run with `python multiwrite.py`
+
 import unittest
 
 from bson.codec_options import CodecOptions
