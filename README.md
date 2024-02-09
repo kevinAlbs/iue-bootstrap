@@ -1,3 +1,16 @@
+# Q3: Does QE support multi writes?
+
+Yes, in a limited capacity. 
+
+For `insert`, `update`, and `delete` commands, see [investigations/multiwrite](./investigations/multiwrite/):
+- Multi-statement inserts are OK.
+- Multi-statement updates and deletes results in the errors: `Only single document deletes are permitted` and `Only single document updates are permitted`.
+- Single-statement delete with multi-document statement is OK.
+- Single-statement update with multi-document statement results in the error: `Multi-document updates are not allowed with Queryable Encryption`.
+
+The `bulkWrite` command has similar limitations. Multi-statement single-document updates or deletes are not supported. `bulkWrite` errors in mongocryptd, and `update` / `delete` errors in `mongod`. See: [investigations/M588](./investigations/M588).
+
+
 # Q2: What fields does Query Analysis include in response?
 Is `$db` included in response? `$readPreference`? `apiVersion`?
 Does the behavior differ between crypt_shared and mongocryptd?
