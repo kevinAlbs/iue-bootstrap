@@ -1,3 +1,6 @@
+# To run:
+#   pip install pymongo "pymongo[encryption]"
+#   python create_encrypted_collection.py
 import os
 from pymongo import MongoClient
 from pymongo.encryption import ClientEncryption, AutoEncryptionOpts
