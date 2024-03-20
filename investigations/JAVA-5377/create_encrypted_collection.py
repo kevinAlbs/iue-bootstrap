@@ -1,3 +1,5 @@
+# Use `create_encrypted_collection` to create data key, then auto encrypt.
+#
 # To run:
 #   pip install pymongo "pymongo[encryption]"
 #   python create_encrypted_collection.py
