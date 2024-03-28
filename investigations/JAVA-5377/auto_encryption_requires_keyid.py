@@ -22,6 +22,7 @@ def main():
         "fields": [
             {
                 "keyId": None,  # Error - keyId is required for automatic encryption!
+                # If `keyId` is omitted, a similar error is returned.
                 "path": "encryptedIndexed",
                 "bsonType": "string",
                 "queries": {"queryType": "equality"},
