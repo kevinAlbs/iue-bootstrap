@@ -1,4 +1,6 @@
 # Test the behavior described in DOCS-15305
+# > For FLE 1, any validator provided that includes $jsonSchema must match the schema in the schema map exactly.
+# This statement is incorrect. It is possible to modify the $jsonSchema with `collMod`. This is due to changes in MONGOCRYPT-463. libmongocrypt prefers the schema from the `collMod` command.
 #
 # To run:
 #   pip install pymongo "pymongo[encryption]"
@@ -28,12 +30,6 @@ def main():
     key_id = client_encryption.create_data_key("local")
     client_encryption.close()
 
-    """
-    From DOCS-15305:
-    > For FLE 1, any validator provided that includes $jsonSchema must match the schema in the schema map exactly.
-
-    This statement appears incorrect. Testing suggests it is possible to modify the $jsonSchema.
-    """
     json_schema = {
         "properties": {
             "secret": {
@@ -80,7 +76,6 @@ def main():
     got = client["db"]["coll"].find_one()  # Use unencrypted client to get ciphertext.
     assert isinstance(got["secret"], bson.Binary)
     encrypted_client.close()
-    client.drop_database("db")  # Clear data.
     client.close()
 
 
