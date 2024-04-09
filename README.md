@@ -1,3 +1,7 @@
+# Q4: Can `collMod` be used to change a `$jsonSchema` with CSFLE encrypted fields?
+
+Yes. mongocryptd rejects a `collMod` command where the `jsonSchema` does not match the `validator.$jsonSchema`. However, MONGOCRYPT-463 changes libmongocrypt to prefer the `jsonSchema` from the `collMod` command.
+
 # Q3: Does QE support multi writes?
 
 Yes, in a limited capacity. 
