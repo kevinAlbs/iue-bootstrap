@@ -1,0 +1,7 @@
+blob_subtype: 3 (FLE2EncryptionPlaceholder)
+t (type): 2 (kFind)
+a (algorithm): 2 (Indexed Equality)
+ki (IndexKeyId): b'\x124Vx\x124\x98v\x124\x124Vx\x90\x12' 
+ku (UserKeyId): b'\x124Vx\x124\x98v\x124\x124Vx\x90\x12' 
+v (value): 123456 
+cm (max contention counter): 0 

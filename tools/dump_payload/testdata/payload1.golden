@@ -1,0 +1,4 @@
+blob_subtype: 1 (FLE1DeterministicEncryptedValue)
+key_uuid: 00000000000000000000000000000000
+original_bson_type: 2 (string)
+ciphertext: c23fb7ce4bf654cf9a4df93ad11aa15eae9affbed694bc2efc1c571642fb129a46b23bbf9bc7f4c799010c3dc4653b4600b1979729b98e7a5902848892cc07a0
