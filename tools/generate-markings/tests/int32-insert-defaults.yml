@@ -1,0 +1,46 @@
+# To test, run:
+#   cat tests/int32-insert-defaults.yml | python run_cmd.py --port 27020 --db db
+# Use the `dump_payload` tool in this repo to print info about the output payload.
+{
+    "insert": "test",
+    "documents": [{
+        "encrypted": 123
+    }],
+    "encryptionInformation": {
+        "type": 1,
+        "schema": {
+            "db.test": {
+                "fields": [
+                    {
+                        "keyId": {
+                            "$binary": {
+                                "base64": "EjRWeBI0mHYSNBI0VniQEg==",
+                                "subType": "04"
+                            }
+                        },
+                        "path": "encrypted",
+                        "bsonType": "int",
+                        "queries": {
+                            "queryType": "range",
+                            # Omit `min`, `max`, `trimFactor`, and `sparsity`.
+                        }
+                    }
+                ]
+            }
+        }
+    }
+}
+
+# Example output includes this payload: A30AAAAQdAABAAAAEGEAAwAAAAVraQAQAAAABBI0VngSNJh2EjQSNFZ4kBIFa3UAEAAAAAQSNFZ4EjSYdhI0EjRWeJASA3YAHgAAABB2AHsAAAAQbWluAAAAAIAQbWF4AP///38AEmNtAAgAAAAAAAAAEnMAAQAAAAAAAAAA
+#
+# Use the `dump_payload.py` tool in this repository to print payload contents:
+#
+# % python dump_payload.py A30AAAAQdAABAAAAEGEAAwAAAAVraQAQAAAABBI0VngSNJh2EjQSNFZ4kBIFa3UAEAAAAAQSNFZ4EjSYdhI0EjRWeJASA3YAHgAAABB2AHsAAAAQbWluAAAAAIAQbWF4AP///38AEmNtAAgAAAAAAAAAEnMAAQAAAAAAAAAA
+#   blob_subtype: 3 (FLE2EncryptionPlaceholder)
+#   t (type): 1 (kInsert)
+#   a (algorithm): 3 (Indexed Range)
+#   ki (IndexKeyId): b'\x124Vx\x124\x98v\x124\x124Vx\x90\x12' 
+#   ku (UserKeyId): b'\x124Vx\x124\x98v\x124\x124Vx\x90\x12' 
+#   v (value): {'v': 123, 'min': -2147483648, 'max': 2147483647} 
+#   cm (max contention counter): 8 
+#   s (sparsity): 1 
