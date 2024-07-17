@@ -480,6 +480,59 @@ def dump_payload9(payload, decrypt=False):
         if len(Inner) > 0:
             raise RuntimeError(
                 "unexpected extra bytes: {}".format(Inner.hex()))
+        
+def dump_payload11(payload, dumpivs=False):
+    """
+    Dump an FLE2InsertUpdatePayloadV2.
+    See https://github.com/mongodb/mongo/blob/b24400ba145db61b70145f6e3fcdc0508732cd7e/src/mongo/crypto/fle_field_schema.idl#L212
+    for a description of the BSON fields.
+    """
+    ivs = []
+
+    blob_subtype = payload[0]
+    print("blob_subtype: {} ({})".format(
+        payload[0], blob_subtype_to_string(blob_subtype)))
+    payload = payload[1:]
+
+    as_bson = bson.decode(payload)
+    key_map = {
+        "d": "EDCDerivedFromDataTokenAndCounter",
+        "s": "ESCDerivedFromDataTokenAndCounter",
+        "c": "ECCDerivedFromDataTokenAndCounter",
+        "p": "Encrypted tokens",
+        "u": "IndexKeyId",
+        "t": "Encrypted type",
+        "v": "Encrypted value",
+        "e": "ServerDataEncryptionLevel1Token",
+        "l": "ServerDerivedFromDataToken",
+        "k": "ContentionFactor",
+        "g": "EdgeTokenSet",
+        "sp": "Sparsity",
+        "pn": "Precision",
+        "tf": "TrimFactor",
+        "mn": "IndexMin",
+        "mx": "IndexMax"
+    }
+
+    for k, v in as_bson.items():
+        suffix = ""
+        if type(v) == bytes:
+            v = v.hex()
+        if k == "g":
+            print("{} ({}):".format(k, key_map[k], v, suffix))
+            # This is an array of EdgeTokenSet.
+            for i, EdgeTokenSet in enumerate(v):
+                print("  token: {}".format(i))
+                for ek, ev in EdgeTokenSet.items():
+                    if dumpivs:
+                        if ek == "p":
+                            ivs.append(ev[0:16])
+                    if type(ev) == bytes:
+                        ev = ev.hex()
+                    print("    {} ({}): {}".format(ek, key_map[ek], ev))
+            continue
+        print("{} ({}): {} {}".format(k, key_map[k], v, suffix))
+
 
 
 def infer_base64_or_hex(input: str, encoding):
@@ -529,8 +582,7 @@ def dump_payload(input: str, encoding="unknown", decrypt=False, dumpivs=False):
         supports_decrypt = True
         dump_payload9(payload, decrypt=decrypt)
     elif payload[0] == 11:
-        print("Got payload type: {}. Do not know how to decode.".format(
-            blob_subtype_to_string(payload[0])))
+        dump_payload11(payload)
     elif payload[0] == 12:
         print("Got payload type: {}. Do not know how to decode.".format(
             blob_subtype_to_string(payload[0])))
