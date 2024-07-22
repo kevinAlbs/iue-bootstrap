@@ -534,6 +534,46 @@ def dump_payload11(payload, dumpivs=False):
         print("{} ({}): {} {}".format(k, key_map[k], v, suffix))
 
 
+def dump_payload13(payload):
+    """
+    Dump an FLE2FindRangePayloadV2.
+    See https://github.com/mongodb/mongo/blob/c675b7164d26faa943f7ff576b3be102a239d927/src/mongo/crypto/fle_field_schema.idl#L339-L386
+    for a description of the BSON fields.
+    """
+
+    blob_subtype = payload[0]
+    print("blob_subtype: {} ({})".format(
+        payload[0], blob_subtype_to_string(blob_subtype)))
+    payload = payload[1:]
+
+    as_bson = bson.decode(payload)
+    key_map = {
+        "payload": "payload",
+        "payloadId": "payloadId",
+        "firstOperator": "firstOperator",
+        "secondOperator": "secondOperator",
+        "sp": "sparsity",
+        "pn": "precision",
+        "tf": "trimFactor",
+        "mn": "indexMin",
+        "mx": "indexMax",
+        "cm": "maxCounter"
+    }
+
+    for k, v in as_bson.items():
+        if type(v) is bytes:
+            v = v.hex()
+        if k == "payload":
+            print("{} ({}):".format(k, key_map[k]))
+            for pk, pv in v.items():
+                if pk == "g":
+                    print ("{}: ({} edges)".format(pk, len(pv)))
+                else:
+                    print("{} ({}): {}".format(pk, key_map[pk], pv))
+            continue
+        print("{} ({}): {}".format(k, key_map[k], v))
+
+
 
 def infer_base64_or_hex(input: str, encoding):
     """
@@ -587,8 +627,7 @@ def dump_payload(input: str, encoding="unknown", decrypt=False, dumpivs=False):
         print("Got payload type: {}. Do not know how to decode.".format(
             blob_subtype_to_string(payload[0])))
     elif payload[0] == 13:
-        print("Got payload type: {}. Do not know how to decode.".format(
-            blob_subtype_to_string(payload[0])))
+        dump_payload13(payload)
     elif payload[0] == 14:
         print("Got payload type: {}. Do not know how to decode.".format(
             blob_subtype_to_string(payload[0])))
