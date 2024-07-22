@@ -31,7 +31,7 @@
     }
 }
 
-# Example output includes this payload: A30AAAAQdAABAAAAEGEAAwAAAAVraQAQAAAABBI0VngSNJh2EjQSNFZ4kBIFa3UAEAAAAAQSNFZ4EjSYdhI0EjRWeJASA3YAHgAAABB2AHsAAAAQbWluAAAAAIAQbWF4AP///38AEmNtAAgAAAAAAAAAEnMAAQAAAAAAAAAA
+# Example output includes this payload: A30AAAAQdAABAAAAEGEAAwAAAAVraQAQAAAABBI0VngSNJh2EjQSNFZ4kBIFa3UAEAAAAAQSNFZ4EjSYdhI0EjRWeJASA3YAHgAAABB2AHsAAAAQbWluAAAAAIAQbWF4AP///38AEmNtAAgAAAAAAAAAEnMAAgAAAAAAAAAA
 #
 # Use the `dump_payload.py` tool in this repository to print payload contents:
 #
@@ -43,4 +43,4 @@
 #   ku (UserKeyId): b'\x124Vx\x124\x98v\x124\x124Vx\x90\x12' 
 #   v (value): {'v': 123, 'min': -2147483648, 'max': 2147483647} 
 #   cm (max contention counter): 8 
-#   s (sparsity): 1 
+#   s (sparsity): 2 
