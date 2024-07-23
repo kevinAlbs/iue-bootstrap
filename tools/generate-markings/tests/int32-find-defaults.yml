@@ -1,0 +1,46 @@
+# To test, run:
+#   cat tests/int32-find-defaults.yml | python run_cmd.py --port 27020 --db db
+# Use the `dump_payload` tool in this repo to print info about the output payload.
+{
+    "find": "test",
+    "filter": {
+        "encrypted": 123
+    },
+    "encryptionInformation": {
+        "type": 1,
+        "schema": {
+            "db.test": {
+                "fields": [
+                    {
+                        "keyId": {
+                            "$binary": {
+                                "base64": "EjRWeBI0mHYSNBI0VniQEg==",
+                                "subType": "04"
+                            }
+                        },
+                        "path": "encrypted",
+                        "bsonType": "int",
+                        "queries": {
+                            "queryType": "range",
+                            # Omit `min`, `max`, `trimFactor`, and `sparsity`.
+                        }
+                    }
+                ]
+            }
+        }
+    }
+}
+
+# Example output includes this payload: AEQdHJpbUZhY3RvcgAGAAAAEGluZGV4TWluAAAAAIAQaW5kZXhNYXgA////fwAQcGF5bG9hZElkAAAAAAAQZmlyc3RPcGVyYXRvcgACAAAAEHNlY29uZE9wZXJhdG9yAAQAAAAAEmNtAAgAAAAAAAAAEnMAAgAAAAAAAAAA
+#
+# Use the `dump_payload.py` tool in this repository to print payload contents:
+#
+# % python dump_payload.py AEQdHJpbUZhY3RvcgAGAAAAEGluZGV4TWluAAAAAIAQaW5kZXhNYXgA////fwAQcGF5bG9hZElkAAAAAAAQZmlyc3RPcGVyYXRvcgACAAAAEHNlY29uZE9wZXJhdG9yAAQAAAAAEmNtAAgAAAAAAAAAEnMAAgAAAAAAAAAA
+# blob_subtype: 3 (FLE2EncryptionPlaceholder)
+# t (type): 2 (kFind)
+# a (algorithm): 3 (Indexed Range)
+# ki (IndexKeyId): b'\x124Vx\x124\x98v\x124\x124Vx\x90\x12' 
+# ku (UserKeyId): b'\x124Vx\x124\x98v\x124\x124Vx\x90\x12' 
+# v (value): {'edgesInfo': {'lowerBound': 123, 'lbIncluded': True, 'upperBound': 123, 'ubIncluded': True, 'trimFactor': 6, 'indexMin': -2147483648, 'indexMax': 2147483647}, 'payloadId': 0, 'firstOperator': 2, 'secondOperator': 4} 
+# cm (max contention counter): 8 
+# s (sparsity): 2
