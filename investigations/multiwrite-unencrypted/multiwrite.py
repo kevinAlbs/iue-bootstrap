@@ -69,7 +69,7 @@ class TestQEMultiWrite(unittest.TestCase):
         # Add useful objects to `self`:
         self.encryptedClient = encryptedClient
 
-    def testMultiOps(self):
+    def testMultiUpdate(self):
         encryptedClient : MongoClient = self.encryptedClient
         encryptedColl = encryptedClient["db"]["coll"]
         
@@ -84,11 +84,11 @@ class TestQEMultiWrite(unittest.TestCase):
 
         # Test a multi-document update. Expect error.
         with self.assertRaises(pymongo.errors.EncryptionError) as ctx:
-            encryptedColl.update_many({"unencryptedString": "bar"}, {"$set": {"unencryptedString": "bar2"}})
+            encryptedColl.update_many({}, {"$set": {"unencryptedString": "foo"}})
         self.assertIn ("Multi-document updates are not allowed with Queryable Encryption", str(ctx.exception))
 
         # Instead, use a client without auto encryption.
-        unencryptedColl.update_many({"unencryptedString": "bar"}, {"$set": {"unencryptedString": "bar2"}})
+        unencryptedColl.update_many({}, {"$set": {"unencryptedString": "foo"}})
     
 if __name__ == "__main__":
     unittest.main()
