@@ -1,6 +1,8 @@
 """
 Benchmark running aggregate commands with auto encryption.
 
+Times running 2000 aggregate commands. Runs 10 trials and prints the median.
+
 Intended to answer: Does contacting query analysis twice produce significant overhead?
 
 To test a custom build of libmongocrypt, export the following:
@@ -100,7 +102,7 @@ def main():
     # Clear old data
     coll.drop()
 
-    # Do several trials of 1000 aggregate ops.
+    # Do 10 trials of 2000 aggregate ops.
     times = []
     for trial in range (10):
         print ("trial: {}".format(trial))
