@@ -12,8 +12,8 @@ export PYMONGOCRYPT_LIB=/path/to/libmongocrypt.dylib
 
 Tested by modifying libmongocrypt to request markings twice:
 
-With existing libmongocrypt: median time: 0.46
-With modified libmongocrypt: median time: 0.69
+With existing libmongocrypt: median time: 0.46s
+With modified libmongocrypt: median time: 0.69s
 """
 
 import os
