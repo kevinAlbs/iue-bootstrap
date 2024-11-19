@@ -12,8 +12,21 @@ export PYMONGOCRYPT_LIB=/path/to/libmongocrypt.dylib
 
 Tested by modifying libmongocrypt to request markings twice:
 
-With existing libmongocrypt: median time: 0.46s
-With modified libmongocrypt: median time: 0.69s
+To test with crypt shared, pass:
+```
+export CRYPT_SHARED_PATH=/path/to/crypt_shared.dylib
+```
+
+With mongocryptd:
+    With existing libmongocrypt: median time: 0.47s
+    With modified libmongocrypt: median time: 0.68s
+    Adds .11ms per operation.
+
+With crypt_shared:
+    With existing libmongocrypt: median time: 0.32s
+    With modified libmongocrypt: median time: 0.34s
+    Adds .01ms per operation.
+
 """
 
 import os
@@ -92,9 +105,15 @@ def main():
     json_schema = json_util.loads(json_schema_string)
     schema_map = {encrypted_namespace: json_schema}
 
-    auto_encryption_opts = AutoEncryptionOpts(
-        kms_providers, key_vault_namespace, schema_map=schema_map, mongocryptd_bypass_spawn=True
-    )
+
+    if "CRYPT_SHARED_PATH" in os.environ:
+        auto_encryption_opts = AutoEncryptionOpts(
+           kms_providers, key_vault_namespace, schema_map=schema_map, mongocryptd_bypass_spawn=True, crypt_shared_lib_path=os.environ["CRYPT_SHARED_PATH"], crypt_shared_lib_required=True,
+        )
+    else:
+        auto_encryption_opts = AutoEncryptionOpts(
+           kms_providers, key_vault_namespace, schema_map=schema_map, mongocryptd_bypass_spawn=True
+        )
 
     encrypted_client = MongoClient(auto_encryption_opts=auto_encryption_opts)
     db_name, coll_name = encrypted_namespace.split(".", 1)
