@@ -18,13 +18,13 @@ export CRYPT_SHARED_PATH=/path/to/crypt_shared.dylib
 ```
 
 With mongocryptd:
-    With existing libmongocrypt: median time: 0.47s
-    With modified libmongocrypt: median time: 0.68s
+    With existing libmongocrypt: median time: 0.47s. .24ms per operation.
+    With modified libmongocrypt: median time: 0.68s. .34ms per operation
     Adds .11ms per operation.
 
 With crypt_shared:
-    With existing libmongocrypt: median time: 0.32s
-    With modified libmongocrypt: median time: 0.34s
+    With existing libmongocrypt: median time: 0.32s. .16ms per operation.
+    With modified libmongocrypt: median time: 0.34s. .17ms per operation.
     Adds .01ms per operation.
 
 """
@@ -120,6 +120,7 @@ def main():
     coll = encrypted_client[db_name][coll_name]
     # Clear old data
     coll.drop()
+    coll.insert_one({"x": 1})
 
     # Do 10 trials of 2000 aggregate ops.
     times = []
@@ -131,7 +132,7 @@ def main():
                 "$match": {}
             }])
             for doc in cursor:
-                print (doc)
+                pass
         end = perf_counter()
         times.append(end - start)
     times.sort()
