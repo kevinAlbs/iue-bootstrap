@@ -31,14 +31,13 @@ With crypt_shared:
 
 import os
 from bson.codec_options import CodecOptions
-from bson import json_util
 from pymongo import MongoClient
 from pymongo.encryption import Algorithm, ClientEncryption
 from pymongo.encryption_options import AutoEncryptionOpts
 from time import perf_counter
 
 
-def create_json_schema_file(kms_providers, key_vault_namespace, key_vault_client):
+def create_json_schema(kms_providers, key_vault_namespace, key_vault_client):
     client_encryption = ClientEncryption(
         kms_providers,
         key_vault_namespace,
@@ -63,12 +62,7 @@ def create_json_schema_file(kms_providers, key_vault_namespace, key_vault_client
         "bsonType": "object",
     }
 
-    json_schema_string = json_util.dumps(
-        schema, json_options=json_util.CANONICAL_JSON_OPTIONS
-    )
-
-    with open("jsonSchema.json", "w") as file:
-        file.write(json_schema_string)
+    return schema
 
 
 def main():
@@ -97,12 +91,7 @@ def main():
         partialFilterExpression={"keyAltNames": {"$exists": True}},
     )
 
-    create_json_schema_file(kms_providers, key_vault_namespace, key_vault_client)
-
-    # Load the JSON Schema and construct the local schema_map option.
-    with open("jsonSchema.json", "r") as file:
-        json_schema_string = file.read()
-    json_schema = json_util.loads(json_schema_string)
+    json_schema = create_json_schema(kms_providers, key_vault_namespace, key_vault_client)
     schema_map = {encrypted_namespace: json_schema}
 
 
