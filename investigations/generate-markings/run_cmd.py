@@ -8,6 +8,8 @@ import sys
 from bson import json_util
 import bson
 import argparse
+import json
+import yaml
 
 json_opts = json_util.JSONOptions(
     json_mode=json_util.JSONMode.CANONICAL, uuid_representation=bson.UuidRepresentation.STANDARD)
@@ -56,7 +58,11 @@ def main():
         uri = "mongodb://localhost:{}/?serverSelectionTimeoutMS=1000".format(
             args.port)
 
-    cmd = json_util.loads(sys.stdin.read(), json_options=json_opts)
+    # Read as YAML (to support comments).
+    as_yaml = yaml.load(sys.stdin, Loader=yaml.Loader)
+    as_json = json.dumps(as_yaml)
+    # Read as canonical extended JSON
+    cmd = json_util.loads(as_json, json_options=json_opts)
     if not run_cmd(uri, cmd, args.db, args.quiet, args.server_error_ok):
         sys.exit(1)
     sys.exit(0)
