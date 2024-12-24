@@ -1,0 +1,5 @@
+blob_subtype: 12 (FLE2FindEqualityPayloadV2)
+d (EDCDerivedFromDataToken): f1a665c533744fc53c82ef452c8049c1af6696ab188db2f6b27fbd2071802ba3 
+s (ESCDerivedFromDataToken): a2d518e69dd2aa8275f2ef16f6d91cd46e7665d6c3994573ce0b429c26403199 
+l (ServerDerivedFromDataToken): a49b4a3d6e3ea3d07b800ca734b2f6ea3b65078fa1ab94d745eb228dc61eb7c5 
+cm (Queryable Encryption max counter): 0 

@@ -303,6 +303,31 @@ def dump_payload5(payload):
         print("{} ({}): {} {}".format(k, key_map[k], v, suffix))
 
 
+def dump_payload12(payload):
+    """
+    Dump an FLE2FindEqualityPayloadV2.
+    See https://github.com/mongodb/mongo/blob/c79f785a7cc5c304d49bab06e0bb1e722d1ec968/src/mongo/crypto/fle_field_schema.idl#L289-L309
+    for a description of the BSON fields.
+    """
+    blob_subtype = payload[0]
+    print("blob_subtype: {} ({})".format(
+        payload[0], blob_subtype_to_string(blob_subtype)))
+
+    payload = payload[1:]
+    as_bson = bson.decode(payload)
+    key_map = {
+        "d": "EDCDerivedFromDataToken",
+        "s": "ESCDerivedFromDataToken",
+        "l": "ServerDerivedFromDataToken",
+        "cm": "Queryable Encryption max counter"
+    }
+
+    for k, v in as_bson.items():
+        suffix = ""
+        if type(v) == bytes:
+            v = v.hex()
+        print("{} ({}): {} {}".format(k, key_map[k], v, suffix))
+
 def dump_payload6(payload):
     """
     Dump an FLE2UnindexedEncryptedValue.
@@ -624,8 +649,7 @@ def dump_payload(input: str, encoding="unknown", decrypt=False, dumpivs=False):
     elif payload[0] == 11:
         dump_payload11(payload)
     elif payload[0] == 12:
-        print("Got payload type: {}. Do not know how to decode.".format(
-            blob_subtype_to_string(payload[0])))
+        dump_payload12 (payload)
     elif payload[0] == 13:
         dump_payload13(payload)
     elif payload[0] == 14:
