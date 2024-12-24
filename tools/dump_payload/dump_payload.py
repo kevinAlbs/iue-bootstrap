@@ -135,8 +135,6 @@ def dump_payload1or2(payload):
     for a description of the byte layout.
     """
     blob_subtype = payload[0]
-    print("blob_subtype: {} ({})".format(
-        blob_subtype, blob_subtype_to_string(blob_subtype)))
     payload = payload[1:]
 
     key_uuid = payload[0:16]
@@ -159,8 +157,6 @@ def dump_payload0(payload):
     for a description of the byte layout.
     """
     blob_subtype = payload[0]
-    print("blob_subtype: {} ({})".format(
-        blob_subtype, blob_subtype_to_string(blob_subtype)))
     payload = payload[1:]
 
     as_bson = bson.decode(payload)
@@ -185,8 +181,6 @@ def dump_payload3(payload):
     for a description of the BSON fields.
     """
     blob_subtype = payload[0]
-    print("blob_subtype: {} ({})".format(
-        payload[0], blob_subtype_to_string(blob_subtype)))
     payload = payload[1:]
 
     as_bson = bson.decode(payload)
@@ -228,8 +222,6 @@ def dump_payload4(payload, dumpivs=False):
     ivs = []
 
     blob_subtype = payload[0]
-    print("blob_subtype: {} ({})".format(
-        payload[0], blob_subtype_to_string(blob_subtype)))
     payload = payload[1:]
 
     as_bson = bson.decode(payload)
@@ -283,8 +275,6 @@ def dump_payload5(payload):
     for a description of the BSON fields.
     """
     blob_subtype = payload[0]
-    print("blob_subtype: {} ({})".format(
-        payload[0], blob_subtype_to_string(blob_subtype)))
 
     payload = payload[1:]
     as_bson = bson.decode(payload)
@@ -310,8 +300,6 @@ def dump_payload12(payload):
     for a description of the BSON fields.
     """
     blob_subtype = payload[0]
-    print("blob_subtype: {} ({})".format(
-        payload[0], blob_subtype_to_string(blob_subtype)))
 
     payload = payload[1:]
     as_bson = bson.decode(payload)
@@ -335,8 +323,6 @@ def dump_payload6(payload):
     for a description of the layout.
     """
     blob_subtype = payload[0]
-    print("blob_subtype: {} ({})".format(
-        payload[0], blob_subtype_to_string(blob_subtype)))
     payload = payload[1:]
     keyid = payload[0:16]
     payload = payload[16:]
@@ -356,8 +342,6 @@ def dump_payload7(payload):
     for a description of the layout.
     """
     blob_subtype = payload[0]
-    print("blob_subtype: {} ({})".format(
-        payload[0], blob_subtype_to_string(blob_subtype)))
     payload = payload[1:]
     S_KeyId = payload[0:16]
     payload = payload[16:]
@@ -411,8 +395,6 @@ def dump_payload10(payload):
     for a description of the BSON fields.
     """
     blob_subtype = payload[0]
-    print("blob_subtype: {} ({})".format(
-        payload[0], blob_subtype_to_string(blob_subtype)))
     payload = payload[1:]
 
     operatorMap = {
@@ -451,8 +433,6 @@ def dump_payload9(payload, decrypt=False):
     for a description of the layout.
     """
     blob_subtype = payload[0]
-    print("blob_subtype: {} ({})".format(
-        payload[0], blob_subtype_to_string(blob_subtype)))
     payload = payload[1:]
     key_uuid = payload[0:16]
     payload = payload[16:]
@@ -515,8 +495,6 @@ def dump_payload11(payload, dumpivs=False):
     ivs = []
 
     blob_subtype = payload[0]
-    print("blob_subtype: {} ({})".format(
-        payload[0], blob_subtype_to_string(blob_subtype)))
     payload = payload[1:]
 
     as_bson = bson.decode(payload)
@@ -567,8 +545,6 @@ def dump_payload13(payload):
     """
 
     blob_subtype = payload[0]
-    print("blob_subtype: {} ({})".format(
-        payload[0], blob_subtype_to_string(blob_subtype)))
     payload = payload[1:]
 
     as_bson = bson.decode(payload)
@@ -626,6 +602,10 @@ def dump_payload(input: str, encoding="unknown", decrypt=False, dumpivs=False):
     payload = infer_base64_or_hex(input, encoding)
     supports_decrypt = False
     supports_dumpivs = False
+
+    print("blob_subtype: {} ({})".format(
+        payload[0], blob_subtype_to_string(payload[0])))
+    
     if payload[0] == 1 or payload[0] == 2:
         dump_payload1or2(payload)
     elif payload[0] == 0:
@@ -653,14 +633,11 @@ def dump_payload(input: str, encoding="unknown", decrypt=False, dumpivs=False):
     elif payload[0] == 13:
         dump_payload13(payload)
     elif payload[0] == 14:
-        print("Got payload type: {}. Do not know how to decode.".format(
-            blob_subtype_to_string(payload[0])))
+        print ("Do not know how to dump")
     elif payload[0] == 15:
-        print("Got payload type: {}. Do not know how to decode.".format(
-            blob_subtype_to_string(payload[0])))
+        print ("Do not know how to dump")
     elif payload[0] == 16:
-        print("Got payload type: {}. Do not know how to decode.".format(
-            blob_subtype_to_string(payload[0])))
+        print ("Do not know how to dump")
     else:
         raise RuntimeError(
             "Do not know how to decode payload with first byte {}".format(payload[0]))
