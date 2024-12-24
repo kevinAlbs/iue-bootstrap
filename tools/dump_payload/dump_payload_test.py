@@ -25,6 +25,7 @@ class TestDump (unittest.TestCase):
             {"filename": "payload9"},
             {"filename": "payload4", "dumpivs": True},
             {"filename": "payload12"},
+            {"filename": "payload14"},
         ]
         if "REGENERATE_GOLDEN_FILES" in os.environ:
             print("Regenerating golden files")
