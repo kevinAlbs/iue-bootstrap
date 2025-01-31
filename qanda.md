@@ -1,3 +1,15 @@
+# Q9: How are components licensed?
+
+- mongocryptd, crypt_shared, and enterprise mongod are MongoDB Enterprise licensed (proprietary, closed-source)
+- Community mongod is SSPL licensed.
+- libmongocrypt and drivers are Apache licensed.
+
+See https://mongodb.slack.com/archives/CDM9QEGUT/p1738279383805289
+
+# Q8: What is the purpose of libbson-static-for-libmongocrypt?
+
+A: See https://github.com/mongodb/libmongocrypt/pull/365#discussion_r896041414
+
 # Q7: What types are supported for QE?
 
 A: See https://github.com/10gen/mongo/blob/488dc7f55c7512da8f2befbd13f5a7f23c404c39/src/mongo/crypto/encryption_fields_util.h#L44-L170
