@@ -51,6 +51,8 @@ def blob_subtype_to_string(blob_subtype):
         return "FLE2RangeIndexedValueV2"
     elif blob_subtype == 16:
         return "FLE2UnindexedEncryptedValueV2"
+    elif blob_subtype == 17:
+        return "FLE2IndexedTextEncryptedValue"
     else:
         raise RuntimeError(
             "{} has no string name. Please add one.".format(blob_subtype))
@@ -637,6 +639,8 @@ def dump_payload(input: str, encoding="unknown", decrypt=False, dumpivs=False):
     elif payload[0] == 15:
         print ("Do not know how to dump")
     elif payload[0] == 16:
+        print ("Do not know how to dump")
+    elif payload[0] == 17:
         print ("Do not know how to dump")
     else:
         raise RuntimeError(
