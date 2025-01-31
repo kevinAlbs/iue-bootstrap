@@ -1,0 +1,23 @@
+# To test: run mongocryptd and send this file as a command:
+# cat (file).yml | python ../run_cmd.py --port 27020 --db db
+#
+# With v8.0.0, results in error:
+# "Pipeline over an encrypted collection cannot reference additional collections"
+{
+    "aggregate": "c1",
+    "pipeline": [{
+        "$lookup": {
+            "from": "c2",
+            "localField": "joinme",
+            "foreignField": "joinme",
+            "as": "matched"
+        }
+    }],
+    "cursor": {},
+
+    "jsonSchema" : { "required": ["foo"] },
+    "isRemoteSchema" : true
+
+}
+
+
