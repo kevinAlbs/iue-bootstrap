@@ -29,9 +29,13 @@
         }
     },
 
-    # db.c2 has a JSON schema without encrypted fields:
-    "csfleEncryptionSchemas" : { "db.c2" : {"jsonSchema" : { "required": ["foo"] }, "isRemoteSchema" : true} },
-    
+    # db.c2 has a remote JSON schema without encrypted fields:
+    "csfleEncryptionSchemas" : {
+      "db.c2" : {
+        "jsonSchema" : { "required": ["foo"] },
+        "isRemoteSchema" : true
+      }
+    }
 }
 
 
