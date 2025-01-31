@@ -1,0 +1,13 @@
+# To test: run mongocryptd and send this file as a command:
+# cat (file).yml | python ../run_cmd.py --port 27020 --db db
+#
+# With v8.0.0, results in error:
+# "JSON schema keyword 'required' is only allowed with a remote schema"
+{
+    "find": "c1",
+    "filter": {},
+    "jsonSchema" : { "required": ["foo"] },
+    "isRemoteSchema" : false
+}
+
+
