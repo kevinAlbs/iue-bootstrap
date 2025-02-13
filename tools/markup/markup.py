@@ -19,6 +19,8 @@ import bson.binary
 from bson import json_util
 import os
 import sys
+import yaml
+import json
 try:
     import cffi
 except ModuleNotFoundError as e:
@@ -380,11 +382,11 @@ class _lib_Wrapper:
     def __exit__(self, exc_type, exc_val, exc_tb):
         ffi.dlclose(_lib)
 
-def markup_cmd (libpath: str, cmd_bytes : bytes):
+def markup_cmd (libpath: str, cmd_bytes : bytes, ns):
     with _lib_Wrapper (libpath):
         with _mongo_crypt_v1_lib_Wrapper () as crypt:
             with _mongo_crypt_v1_query_analyzer_Wrapper (crypt) as qa:
-                got = qa.analyze_query(cmd_bytes, "db.test")
+                got = qa.analyze_query(cmd_bytes, ns)
                 json_options = json_util.JSONOptions(
                     json_mode=json_util.JSONMode.CANONICAL,
                     uuid_representation=bson.binary.UuidRepresentation.STANDARD)
@@ -400,49 +402,12 @@ json_options = json_util.JSONOptions(
     json_mode=json_util.JSONMode.CANONICAL,
     uuid_representation=bson.binary.UuidRepresentation.STANDARD)
 
-in_json_str = """
-{
-    "find": "test",
-    "filter": {
-        "value": 123456
-    },
-    "encryptionInformation": {
-        "type": 1,
-        "schema": {
-            "db.test": {
-                "escCollection": "esc",
-                "eccCollection": "ecc",
-                "ecocCollection": "ecoc",
-                "fields": [
-                    {
-                        "keyId": {
-                            "$binary": {
-                                "base64": "EjRWeBI0mHYSNBI0VniQEg==",
-                                "subType": "04"
-                            }
-                        },
-                        "path": "value",
-                        "bsonType": "int",
-                        "queries": {
-                            "queryType": "equality",
-                            "contention": {
-                                "$numberLong": "0"
-                            }
-                        }
-                    }
-                ]
-            }
-        }
-    },
-    "$db": "db"
-}
-"""
-
 def main():
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--version", action="store_true", help="Print version of crypt shared library")
     parser.add_argument("--libpath", help="Path to the crypt shared library. May also be set through CRYPT_SHARED_PATH environment variable")
     parser.add_argument("--inpath", help="Path to a file containing the command to mark up. The format must be extended canonical JSON. If not present, input is read from stdin.")
+    parser.add_argument("--ns", help="The namespace of the command. Defaults to db.test", default="db.test")
     args = parser.parse_args ()
     libpath = None
     if args.libpath:
@@ -460,15 +425,20 @@ def main():
     json_options = json_util.JSONOptions(
         json_mode=json_util.JSONMode.CANONICAL,
         uuid_representation=bson.binary.UuidRepresentation.STANDARD)
+
     if args.inpath:
         with open(args.inpath, "r") as infile:
-            cmd_json = infile.read()
+            # Read as YAML (to support comments).
+            as_yaml = yaml.load(infile, Loader=yaml.Loader)
+            cmd_json = json.dumps(as_yaml)
     else:
-        cmd_json = sys.stdin.read()
+        # Read as YAML (to support comments).
+        as_yaml = yaml.load(sys.stdin, Loader=yaml.Loader)
+        cmd_json = json.dumps(as_yaml)
     cmd_dict = json_util.loads(cmd_json, json_options=json_options)
     codec_options = bson.CodecOptions(uuid_representation=bson.binary.UuidRepresentation.STANDARD)
     cmd_bson = bson.encode(cmd_dict, codec_options=codec_options)
-    print (markup_cmd (libpath, cmd_bson))
+    print (markup_cmd (libpath, cmd_bson, args.ns))
 
 if __name__ == "__main__":
     main()
