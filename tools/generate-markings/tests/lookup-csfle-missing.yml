@@ -1,6 +1,8 @@
 # To test: run mongocryptd and send this file as a command:
 # cat (file).yml | python ../run_cmd.py --port 27020 --db db
 #
+# On 8.1.0-alpha0-451-gde379ff results in error:
+# > Missing encryption schema for namespace: db.c2
 {
     "aggregate": "c1",
     "pipeline": [{
@@ -15,21 +17,6 @@
     
     "csfleEncryptionSchemas" : {
       "db.c1" : {
-         "jsonSchema": {
-            "properties": {
-               "e2": {
-                  "encrypt": {
-                     "keyId": [{"$binary": { "base64": "uJ2Njy8YQDuYKbzu2vEKQg==", "subType": "04" }}],
-                     "bsonType": "string",
-                     "algorithm": "AEAD_AES_256_CBC_HMAC_SHA_512-Deterministic"
-                  }
-               }
-            },
-            "bsonType": "object"
-         },
-        "isRemoteSchema" : false
-      },
-      "db.c2" : {
          "jsonSchema": {
             "properties": {
                "e2": {
