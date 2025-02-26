@@ -1,3 +1,5 @@
+# Test $lookup behavior on pre-8.1 servers.
+# Self-lookup and explicit encryption may fail to match QE documents in sub-pipelines.
 # Run with `python qe-missing-match.py`
 
 import unittest
@@ -87,7 +89,7 @@ class TestQEMissingMatch(unittest.TestCase):
         self.key_vault_client.close()
         return super().tearDown()
 
-    def testLookup(self):
+    def testExplicitLookup(self):
         payload = self.client_encryption.encrypt("qe2", algorithm=Algorithm.INDEXED, contention_factor=0, key_id=self.key_id)
         got = self.explicit_client["db"]["qe"].aggregate([{
             "$lookup": {
@@ -104,22 +106,6 @@ class TestQEMissingMatch(unittest.TestCase):
         self.assertEqual(got, [{'qe': 'qe', 'matched': []}]) # Does not match { "qe2": "qe2" }!
 
     def testSelfLookup(self):
-        payload = self.client_encryption.encrypt("qe", algorithm=Algorithm.INDEXED, contention_factor=0, key_id=self.key_id)
-        got = self.explicit_client["db"]["qe"].aggregate([{
-            "$lookup": {
-                "from": "qe",
-                "pipeline": [
-                    {"$match": { "qe": payload }},
-                    { "$project": { "_id": 0, "__safeContent__": 0 } }
-                ],
-                "as": "matched"
-            }
-        }, {
-            "$project": { "_id": 0, "__safeContent__": 0 }
-        }]).to_list()
-        self.assertEqual(got, [{'qe': 'qe', 'matched': []}]) # Does not match { "qe": "qe" }!
-
-    def testAutoSelfLookup(self):
         got = self.auto_client["db"]["qe"].aggregate([{
             "$lookup": {
                 "from": "qe",
