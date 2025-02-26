@@ -110,7 +110,7 @@ class TestQEMissingMatch(unittest.TestCase):
         ]
         got = self.auto_client["db"]["qe"].aggregate(pipeline).to_list()
         self.assertEqual(got, [{"qe": "qe", "matched": []}])
-        # Does not match { "qe": "qe" }!
+        # Does not match { "qe": "qe" } in sub-pipeline!
     def testExplicitLookup(self):
         # "db.qe2" is configured with QE and contains `{ "qe2": "qe2" }`. "qe2" is encrypted.
         payload = self.client_encryption.encrypt(
@@ -130,7 +130,7 @@ class TestQEMissingMatch(unittest.TestCase):
         ]
         got = self.explicit_client["db"]["qe"].aggregate(pipeline).to_list()
         self.assertEqual(got, [{"qe": "qe", "matched": []}])
-        # Does not match { "qe2": "qe2" }!
+        # Does not match { "qe2": "qe2" } in sub-pipeline!
 
 if __name__ == "__main__":
     unittest.main()
