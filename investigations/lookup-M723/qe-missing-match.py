@@ -13,6 +13,7 @@ from pymongo.encryption import ClientEncryption, Algorithm
 
 import os
 
+
 class TestQEMissingMatch(unittest.TestCase):
     def setUp(self):
         """
@@ -38,7 +39,7 @@ class TestQEMissingMatch(unittest.TestCase):
                         "path": "qe",
                         "bsonType": "string",
                         "keyId": key_id,
-                        "queries": [{"queryType": "equality", "contention": 0 }],
+                        "queries": [{"queryType": "equality", "contention": 0}],
                     }
                 ],
             },
@@ -48,10 +49,10 @@ class TestQEMissingMatch(unittest.TestCase):
                         "path": "qe2",
                         "bsonType": "string",
                         "keyId": key_id,
-                        "queries": [{"queryType": "equality", "contention": 0 }],
+                        "queries": [{"queryType": "equality", "contention": 0}],
                     }
                 ],
-            }
+            },
         }
         auto_encryption_opts = AutoEncryptionOpts(
             kms_providers,
@@ -65,15 +66,19 @@ class TestQEMissingMatch(unittest.TestCase):
         qe = auto_client["db"].create_collection("qe2")
         qe.insert_one({"qe2": "qe2"})
         plain_client = MongoClient()
-        self.assertTrue (isinstance(plain_client["db"]["qe"].find_one()["qe"], bson.binary.Binary))
-        self.assertTrue (isinstance(plain_client["db"]["qe2"].find_one()["qe2"], bson.binary.Binary))
+        self.assertTrue(
+            isinstance(plain_client["db"]["qe"].find_one()["qe"], bson.binary.Binary)
+        )
+        self.assertTrue(
+            isinstance(plain_client["db"]["qe2"].find_one()["qe2"], bson.binary.Binary)
+        )
 
         # Create a client with bypassAutoEncryption to support explicit encryption:
         explicit_opts = AutoEncryptionOpts(
             kms_providers,
             key_vault_namespace,
             encrypted_fields_map=encrypted_fields_map,
-            bypass_auto_encryption=True
+            bypass_auto_encryption=True,
         )
         self.explicit_client = MongoClient(auto_encryption_opts=explicit_opts)
         self.client_encryption = client_encryption
@@ -89,38 +94,43 @@ class TestQEMissingMatch(unittest.TestCase):
         self.key_vault_client.close()
         return super().tearDown()
 
-    def testExplicitLookup(self):
-        payload = self.client_encryption.encrypt("qe2", algorithm=Algorithm.INDEXED, contention_factor=0, key_id=self.key_id)
-        got = self.explicit_client["db"]["qe"].aggregate([{
-            "$lookup": {
-                "from": "qe2",
-                "pipeline": [
-                    {"$match": { "qe2": payload }},
-                    { "$project": { "_id": 0, "__safeContent__": 0 } }
-                ],
-                "as": "matched"
-            }
-        }, {
-            "$project": { "_id": 0, "__safeContent__": 0 }
-        }]).to_list()
-        self.assertEqual(got, [{'qe': 'qe', 'matched': []}]) # Does not match { "qe2": "qe2" }!
-
     def testSelfLookup(self):
-        got = self.auto_client["db"]["qe"].aggregate([{
-            "$lookup": {
-                "from": "qe",
-                "pipeline": [
-                    {"$match": { "qe": "qe" }},
-                    { "$project": { "_id": 0, "__safeContent__": 0 } }
-                ],
-                "as": "matched"
-            }
-        }, {
-            "$project": { "_id": 0, "__safeContent__": 0 }
-        }]).to_list()
-        self.assertEqual(got, [{'qe': 'qe', 'matched': []}]) # Does not match { "qe": "qe" }!
+        # "db.qe" is configured with QE and contains `{ "qe": "qe" }`. "qe" is encrypted.
+        pipeline = [
+            {
+                "$lookup": {
+                    "from": "qe",
+                    "pipeline": [
+                        {"$match": {"qe": "qe"}}
+                    ],
+                    "as": "matched",
+                }
+            },
+            {"$project": {"_id": 0, "__safeContent__": 0}},
+        ]
+        got = self.auto_client["db"]["qe"].aggregate(pipeline).to_list()
+        self.assertEqual(got, [{"qe": "qe", "matched": []}])
+        # Does not match { "qe": "qe" }!
+    def testExplicitLookup(self):
+        # "db.qe2" is configured with QE and contains `{ "qe2": "qe2" }`. "qe2" is encrypted.
+        payload = self.client_encryption.encrypt(
+            "qe2", algorithm=Algorithm.INDEXED, contention_factor=0, key_id=self.key_id
+        )
+        pipeline = [
+            {
+                "$lookup": {
+                    "from": "qe2",
+                    "pipeline": [
+                        {"$match": {"qe2": payload}},
+                    ],
+                    "as": "matched",
+                }
+            },
+            {"$project": {"_id": 0, "__safeContent__": 0}},
+        ]
+        got = self.explicit_client["db"]["qe"].aggregate(pipeline).to_list()
+        self.assertEqual(got, [{"qe": "qe", "matched": []}])
+        # Does not match { "qe2": "qe2" }!
 
-    
 if __name__ == "__main__":
     unittest.main()
-
