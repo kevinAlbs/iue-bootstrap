@@ -1,3 +1,6 @@
+# Q10: Why does JSON pointer for CSFLE error for Deterministic?
+A:
+
 # Q9: How are components licensed?
 
 - mongocryptd, crypt_shared, and enterprise mongod are MongoDB Enterprise licensed (proprietary, closed-source)
