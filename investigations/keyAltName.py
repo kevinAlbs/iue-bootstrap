@@ -1,3 +1,12 @@
+"""
+Show example of encrypting with CSFLE with both UUID and JSON Pointer key references.
+To run:
+
+Ensure mongocryptd is on the PATH or is already running.
+$ pip install pymongo "pymongo[encryption]"
+$ python keyAltName.py
+"""
+
 import os
 from pymongo import MongoClient
 from pymongo.encryption import Algorithm, ClientEncryption
