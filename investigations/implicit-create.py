@@ -1,6 +1,6 @@
 """
 Q: Does QE implicitly create server-side collection (and schema)?
-A:
+A: The esc/ecoc collections are implicitly created. The encryptedFields option is not implicitly added.
 """
 
 import os
