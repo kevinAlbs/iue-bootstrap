@@ -21,7 +21,7 @@ def main():
         codec_options=client.codec_options
     )
 
-    # Create a new data key for the encryptedField.
+    # Create a new DEK (data encryption key) with a specified KMIP KEK (Key Encryption Key).
     data_key_id = client_encryption.create_data_key("kmip", {
         "delegated": True,
         "keyId": "11" # Refers to a symmetric key in KMIP
