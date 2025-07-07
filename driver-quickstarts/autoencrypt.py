@@ -13,24 +13,15 @@ client_encryption = ClientEncryption(
 )
 key_vault = key_vault_client["keyvault"]["datakeys"]
 key_vault.drop()
-
-# Create two keys:
-key1_id = client_encryption.create_data_key("local")
-key2_id = client_encryption.create_data_key("local")
+key_id = client_encryption.create_data_key("local")
 
 encrypted_fields_map = {
     "db.coll": {
         "fields": [
             {
-                "path": "firstName",
+                "path": "secret",
                 "bsonType": "string",
-                "keyId": key1_id,
-                "queries": [{"queryType": "equality"}],
-            },
-            {
-                "path": "lastName",
-                "bsonType": "string",
-                "keyId": key2_id,
+                "keyId": key_id,
             },
         ],
     }
@@ -44,6 +35,6 @@ auto_encryption_opts = AutoEncryptionOpts(
 client = MongoClient(auto_encryption_opts=auto_encryption_opts)
 client.db.drop_collection("coll")
 coll = client.db.create_collection("coll")
-coll.insert_one({"_id": 1, "firstName": "Jane", "lastName": "Doe"})
-docs = list(coll.find({"firstName": "Jane"}))
+coll.insert_one({"_id": 1, "secret": "foo"})
+docs = list(coll.find({}))
 print(docs)
