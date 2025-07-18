@@ -498,7 +498,6 @@ def dump_payload11(payload, dumpivs=False):
     """
     ivs = []
 
-    blob_subtype = payload[0]
     payload = payload[1:]
 
     as_bson = bson.decode(payload)
@@ -518,15 +517,15 @@ def dump_payload11(payload, dumpivs=False):
         "pn": "Precision",
         "tf": "TrimFactor",
         "mn": "IndexMin",
-        "mx": "IndexMax"
+        "mx": "IndexMax",
+        "b": "TextSearchTokenSets"
     }
 
     for k, v in as_bson.items():
-        suffix = ""
-        if type(v) == bytes:
+        if type(v) is bytes:
             v = v.hex()
         if k == "g":
-            print("{} ({}):".format(k, key_map[k], v, suffix))
+            print("{} ({}):".format(k, key_map[k]))
             # This is an array of EdgeTokenSet.
             for i, EdgeTokenSet in enumerate(v):
                 print("  token: {}".format(i))
@@ -534,11 +533,14 @@ def dump_payload11(payload, dumpivs=False):
                     if dumpivs:
                         if ek == "p":
                             ivs.append(ev[0:16])
-                    if type(ev) == bytes:
+                    if type(ev) is bytes:
                         ev = ev.hex()
                     print("    {} ({}): {}".format(ek, key_map[ek], ev))
             continue
-        print("{} ({}): {} {}".format(k, key_map[k], v, suffix))
+        if k == "b":
+            print("{} ({}): {}".format(k, key_map[k], v))
+
+        print("{} ({}): {}".format(k, key_map[k], v))
 
 
 def dump_payload13(payload):
