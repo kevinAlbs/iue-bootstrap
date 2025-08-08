@@ -1,11 +1,26 @@
 import base64
 import sys
+import bson
+import bson.json_util
+import bson.errors
+import argparse
 
-if len(sys.argv) != 2:
-    print("Usage: {} <base64 CSFLE/QE payload>".format(sys.argv[0]))
-    sys.exit()
+parser = argparse.ArgumentParser(description="Usage: {} <base64 CSFLE/QE payload>".format(sys.argv[0])) 
+parser.add_argument(  
+    '--no-bson',  
+    action='store_true',  
+    help='Disable printing BSON (if applicable)'
+)  
 
-data = base64.b64decode(sys.argv[1])
+parser.add_argument(  
+    'base64',
+    type=str,
+    help='base64 of a CSFLE/QE payload'  
+)  
+
+args = parser.parse_args()  
+
+data = base64.b64decode(args.base64)
 blob_subtype = data[0]
 blob_subtypes = {
     0: "FLE1EncryptionPlaceholder",
@@ -28,4 +43,13 @@ blob_subtypes = {
     18: "FLE2FindTextPayload",
 }
 
-print ("Detected payload type: {}".format(blob_subtypes[blob_subtype]["name"]))
+print ("Detected payload type: {}".format(blob_subtypes[blob_subtype]))
+
+# Some payloads are light wrappers around BSON.
+if not args.no_bson:
+    try:
+        as_bson = bson.decode(data[1:])
+        print(bson.json_util.dumps(as_bson, indent=4))
+    except bson.errors.InvalidBSON:
+        # Ignore.
+        pass
