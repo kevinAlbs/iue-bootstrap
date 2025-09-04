@@ -1,6 +1,7 @@
 # /// script
 # dependencies = [
-#   "pymongo[encryption]",
+#   "pymongo==4.14.1",
+#   "pymongocrypt==1.15.1",
 # ]
 # ///
 
