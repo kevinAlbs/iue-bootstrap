@@ -13,7 +13,9 @@ client_encryption = ClientEncryption(
 )
 key_vault = key_vault_client["keyvault"]["datakeys"]
 key_vault.drop()
-key_id = client_encryption.create_data_key("local", key_alt_names=["foo"])
+
+client_encryption.create_data_key("local", key_alt_names=["kevin"])
+client_encryption.create_data_key("local", key_alt_names=["adrian"])
 
 
 schema_map = {
@@ -21,8 +23,8 @@ schema_map = {
         "properties": {
             "secret": {
                 "encrypt": {
-                    # `keyId` is a JSON pointer. "key" fields refer to "keyAltName".
-                    "keyId": "/key",
+                    # `keyId` is a JSON pointer. "username" fields refer to "keyAltName".
+                    "keyId": "/username",
                     "bsonType": "string",
                     "algorithm": "AEAD_AES_256_CBC_HMAC_SHA_512-Random",
                 }
@@ -41,8 +43,16 @@ coll = client.db.create_collection("coll")
 coll.insert_one(
     {
         "_id": 1,
-        "secret": "secret",
-        "key": "foo",  # Requests key with keyAltName "foo"
+        "secret": "secret",   # "secret" is encrypted.
+        "username": "kevin",  # Requests key with keyAltName
+    }
+)
+
+coll.insert_one(
+    {
+        "_id": 1,
+        "secret": "secret",    # "secret" is encrypted.
+        "username": "adrian",  # Requests key with keyAltName 
     }
 )
 docs = list(coll.find({}))
