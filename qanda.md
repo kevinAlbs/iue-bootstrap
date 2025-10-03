@@ -1,3 +1,6 @@
+# Q11: What happens if the same collection is in both `encryptionInformation` and `csfleEncryptionSchemas`?
+A: mongocryptd appears to prefer the CSFLE schema see [lookup-dupe.yml](./tools/generate-markings/tests/lookup-dupe.yml). I expect this would not be encountered in practice.
+
 # Q10: Why does JSON pointer for CSFLE error for Deterministic?
 A:
 
