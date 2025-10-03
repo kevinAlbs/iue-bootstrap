@@ -1,0 +1,56 @@
+# cat tests/lookup-dupe.yml  | python run_cmd.py --port 27020 --db db
+# Odd: mongocryptd prefers CSFLE schema if collection has both CSFLE and QE.
+# Q: Is this possible in a real scenario? A:
+{
+    "aggregate": "coll",
+    "pipeline": [
+        {
+            "$lookup": {
+                "from": "coll2",
+                "as": "matched",
+                "pipeline" : [ {"$match" : {"encryptedIndexed" : "foo"}} ]
+            }
+        }
+    ],
+    "cursor": {},
+    "encryptionInformation": {
+        "type": {
+            "$numberInt": "1"
+        },
+        "schema": {
+            "db.coll2": {
+                "escCollection": "enxcol_.coll2.esc",
+                "ecocCollection": "enxcol_.coll2.ecoc",
+                "fields": [
+                    {
+                        "keyId": {
+                            "$binary": {
+                                "base64": "YWFhYWFhYWFhYWFhYWFhYQ==",
+                                "subType": "04"
+                            }
+                        },
+                        "path": "encryptedIndexed",
+                        "bsonType": "string",
+                        "queries": {
+                            "queryType": "equality",
+                            "contention": {
+                                "$numberInt": "8"
+                            }
+                        }
+                    }
+                ]
+            }
+        }
+    },
+    "csfleEncryptionSchemas": {
+        "db.coll": {
+            "jsonSchema": {},
+            "isRemoteSchema": true
+        },
+        # Odd: mongocryptd prefers csfle entry if collection is included in both
+        # "db.coll2": {
+        #     "jsonSchema": {},
+        #     "isRemoteSchema": true
+        # }
+    }
+}
