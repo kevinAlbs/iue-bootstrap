@@ -18,8 +18,8 @@
         },
         "schema": {
             "db.coll1": {
-                "escCollection": "enxcol_.coll2.esc",
-                "ecocCollection": "enxcol_.coll2.ecoc",
+                "escCollection": "enxcol_.coll1.esc",
+                "ecocCollection": "enxcol_.coll1.ecoc",
                 "fields": []
             },
             "db.coll2": {
