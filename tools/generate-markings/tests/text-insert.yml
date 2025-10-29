@@ -1,0 +1,42 @@
+{
+  "insert": "test",
+  "documents": [{ "_id": { "$numberInt": "1" }, "ssn": "value123" }],
+  "encryptionInformation":
+    {
+      "type": { "$numberInt": "1" },
+      "schema":
+        {
+          "db.test":
+            {
+              "escCollection": "enxcol_.test.esc",
+              "ecocCollection": "enxcol_.test.ecoc",
+              "fields":
+                [
+                  {
+                    "keyId":
+                      {
+                        "$binary":
+                          {
+                            "base64": "EjRWeBI0mHYSNBI0VniQEg==",
+                            "subType": "04",
+                          },
+                      },
+                    "path": "ssn",
+                    "bsonType": "string",
+                    "queries":
+                      {
+                        "queryType": "substringPreview",
+                        "contention": { "$numberLong": "0" },
+                        "strMaxLength": { "$numberInt": "100" },
+                        "strMinQueryLength": { "$numberInt": "5" },
+                        "strMaxQueryLength": { "$numberInt": "20" },
+                        "caseSensitive": false,
+                        "diacriticSensitive": true,
+                      },
+                  },
+                ],
+              "strEncodeVersion": { "$numberInt": "1" },
+            },
+        },
+    },
+}
