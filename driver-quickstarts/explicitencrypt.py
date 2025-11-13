@@ -59,7 +59,9 @@ def main():
     coll = db.create_collection("coll", encryptedFields=encrypted_fields)
 
     # Create encrypted payloads:
-    insert_payload = client_encryption.encrypt(123, contention_factor=8, algorithm=Algorithm.INDEXED)
+    insert_payload = client_encryption.encrypt(123, contention_factor=8, algorithm=Algorithm.INDEXED, key_id=key_id)
+
+    print ("Inserting payload:", insert_payload)
 
     # Insert the payloads.
     coll.insert_one({"secret": insert_payload})
