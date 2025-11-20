@@ -31,6 +31,7 @@ auto_encryption_opts = AutoEncryptionOpts(
     kms_providers,
     key_vault_namespace,
     encrypted_fields_map=encrypted_fields_map,
+    crypt_shared_lib_path=os.environ.get("CRYPT_SHARED_PATH"),
 )
 client = MongoClient(auto_encryption_opts=auto_encryption_opts)
 client.db.drop_collection("coll")
