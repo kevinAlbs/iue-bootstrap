@@ -32,20 +32,22 @@ def main():
         "local", key_alt_names=["test_key_name"]
     )
 
+    alg = Algorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Deterministic
+
     schema = {
         "properties": {
             "with_key_id": {
                 "encrypt": {
                     "keyId": [test_key_id], # An array of one UUID
                     "bsonType": "string",
-                    "algorithm": Algorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Deterministic,
+                    "algorithm": alg,
                 }
             },
             "with_key_alt_name": {
                 "encrypt": {
-                    "keyId": "/key_name", # JSON Pointer referring to "key_name" field. The "key_name" field value is expected to refer to to a key_alt_name.
+                    "keyId": "/key_name", # JSON Pointer referring to "key_name" field. The "key_name" field value is used to query by keyAltName.
                     "bsonType": "string",
-                    "algorithm": Algorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Random, # Use Random. Deterministic with JSON Pointer is unsupported by server: "cannot have a keyId represented by a JSON pointer"
+                    "algorithm": alg, # Use Random. Deterministic results in server error: "cannot have a keyId represented by a JSON pointer"
                 }
             }
         },
