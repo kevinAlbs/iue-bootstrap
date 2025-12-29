@@ -9,20 +9,32 @@ key_vault_namespace = "keyvault.datakeys"
 uri = os.environ.get("MONGODB_URI", "mongodb://localhost:27017")
 
 # Drop pre-existing data:
-client = MongoClient(uri)
-client.db.coll.drop()
+client = MongoClient(uri).db.coll.drop()
 
-# Try to create a QE collection with an encrypted client:
-auto_encryption_opts = AutoEncryptionOpts(
+encrypted_fields = {
+    "fields": [
+        {
+            "path": "secret",
+            "bsonType": "string",
+            "keyAltName": "foo",  # TODO: will this work with MONGOCRYPT-432?
+        }
+    ]
+}
+
+# Example 1: encrypted_fields_map is set:
+encrypted_client = MongoClient(uri, auto_encryption_opts=AutoEncryptionOpts(
+    kms_providers,
+    key_vault_namespace,
+    encrypted_fields_map={"db.coll": encrypted_fields},
+))
+encrypted_client.db.create_collection("coll")
+
+
+# Example 2: encrypted_fields is only in the 'create' command:
+encrypted_client = MongoClient(uri, auto_encryption_opts=AutoEncryptionOpts(
     kms_providers,
     key_vault_namespace,
     # encrypted_fields_map is not set.
-)
-encrypted_client = MongoClient(uri, auto_encryption_opts=auto_encryption_opts)
-encrypted_client.db.create_collection("coll", encrypted_fields={"fields": [
-    {
-        "path": "secret",
-        "bsonType": "string",
-        "keyAltName": "foo" # TODO: will this work with MONGOCRYPT-432?
-    },
-]})
+))
+encrypted_client.db.create_collection("coll", encrypted_fields=encrypted_fields)
+
