@@ -23,11 +23,12 @@ encrypted_fields_map = {
                 "path": "secret",
                 "bsonType": "decimal",
                 "keyId": key_id,
-                # Decimal128 supports the "range" index, which supports equality queries.
-                "queries": [{"queryType": "range", "min": Decimal128("0.0"), "max": Decimal128("100.0"), "precision": 2, "contention": 4, "sparsity": 2, }],
-                # Decimal128 does NOT support the "equality" index. Example:
-                # "queries": [{"queryType": "equality", "min": Decimal128("0.0"), "max": Decimal128("100.0"), "precision": 2, "contention": 4, "sparsity": 2, }],
-                # Gets back: "Type 'decimal' is not a supported equality indexed type"
+
+                # Decimal128 supports "range" index. "range" supports equality queries.
+                "queries": [{"queryType": "range", "min": Decimal128("0.0"), "max": Decimal128("100.0"), "precision": 2, "contention": 4, "sparsity": 2, "trimFactor": 6}],
+
+                # Decimal128 does NOT support "equality" index:
+                # "queries": [{"queryType": "equality" }] # "Type 'decimal' is not a supported equality indexed type"
             },
         ],
     }
