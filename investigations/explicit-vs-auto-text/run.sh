@@ -5,4 +5,4 @@
 # export PYMONGOCRYPT_LIB=/Users/kevin.albertson/code/tasks/libmongocrypt-explicit-vs-auto-text/cmake-build/libmongocrypt.dylib
 
 export CRYPT_SHARED_PATH=/Users/kevin.albertson/bin/mongodl/crypt_shared/latest-build/lib/mongo_crypt_v1.dylib
-uv generate-payloads.py
+uv run generate-payloads.py
