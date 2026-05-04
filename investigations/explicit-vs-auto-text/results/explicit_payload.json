@@ -1,0 +1,312 @@
+{
+  "d (EDCDerivedFromDataTokenAndCounter)": {
+    "$binary": {
+      "base64": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
+      "subType": "00"
+    }
+  },
+  "s (ESCDerivedFromDataTokenAndCounter)": {
+    "$binary": {
+      "base64": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
+      "subType": "00"
+    }
+  },
+  "p (Encrypted tokens)": {
+    "$binary": {
+      "base64": "96yP7AgF3z8Ogyi+0xt3evm4lKSFiO4LhpiBJArhMPwNgznic1uSBvn8sUu1fc6KFWkK",
+      "subType": "00"
+    }
+  },
+  "u (IndexKeyId)": {
+    "$binary": {
+      "base64": "C5MoKtJgSxKhUsX1E/7Maw==",
+      "subType": "04"
+    }
+  },
+  "t (Encrypted type)": 2,
+  "v (Encrypted value)": {
+    "$binary": {
+      "base64": "C5MoKtJgSxKhUsX1E/7MawaPPH46i8+XYdU62p/18F/ncZfoyBBdsq2DVfgqJ5RYiZw37Qog4BI3cm+EMha0l3RZV0gzits4B9qK5KrwK/w=",
+      "subType": "00"
+    }
+  },
+  "e (ServerDataEncryptionLevel1Token)": {
+    "$binary": {
+      "base64": "KvDbHoudu6uPc5sUPRjfj7ak/dsy3Adwej7UXN4aCDo=",
+      "subType": "00"
+    }
+  },
+  "l (ServerDerivedFromDataToken)": {
+    "$binary": {
+      "base64": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
+      "subType": "00"
+    }
+  },
+  "k (ContentionFactor)": 0,
+  "b (TextSearchTokenSets)": {
+    "e": {
+      "d": {
+        "$binary": {
+          "base64": "S+iXWBYuQnj7bC0WiK6tAnnVJQ452Q1XYlYJ7w4rj/g=",
+          "subType": "00"
+        }
+      },
+      "s": {
+        "$binary": {
+          "base64": "oPhh3yME6/JnDQ9xVdpQ5IE8fUTgA2zzAMYSUQeZiSQ=",
+          "subType": "00"
+        }
+      },
+      "l": {
+        "$binary": {
+          "base64": "6ayGNyPEODUexcxlloCLUBYQX+XJQBpDLcyUVlaTYlc=",
+          "subType": "00"
+        }
+      },
+      "p": {
+        "$binary": {
+          "base64": "l1CvTM90rKxbAv9bemCV38MZ+PnZCCIEJds0js+G9a6deL7rW+6S6vLK4KqpdUOfF/TW",
+          "subType": "00"
+        }
+      }
+    },
+    "s": [],
+    "u": [],
+    "p": [
+      {
+        "d": {
+          "$binary": {
+            "base64": "N7XfLHYpL0GmTWAvF96/B23FrbhumRjjF9Xu18nDVrc=",
+            "subType": "00"
+          }
+        },
+        "s": {
+          "$binary": {
+            "base64": "zE1N8N0XhnB88yIeyGdAjwN5a35zypjKPETYsJLaM4A=",
+            "subType": "00"
+          }
+        },
+        "l": {
+          "$binary": {
+            "base64": "HUv54wQjGNLfbDXmCQ+OfJ6c6Zntesz37eHKg2i6bGw=",
+            "subType": "00"
+          }
+        },
+        "p": {
+          "$binary": {
+            "base64": "keMoZ0y3nvOUDsSEb3kUS+XRNOAjNCN/J7x73WgPVONHnv19nkNcsUFEY5ISWzTGzQ9T",
+            "subType": "00"
+          }
+        }
+      },
+      {
+        "d": {
+          "$binary": {
+            "base64": "MuvQ12n29WQ6nSh0o4V7xy0+svg6YA1o11fhnbgADIs=",
+            "subType": "00"
+          }
+        },
+        "s": {
+          "$binary": {
+            "base64": "aKux+sPYnANXvFhedakxeFLEHRDW0NbHhUKeAa5zxnk=",
+            "subType": "00"
+          }
+        },
+        "l": {
+          "$binary": {
+            "base64": "rDX8tNJyF5/4MF97v8nHjscSisvLnLavaAU6nYPXAzI=",
+            "subType": "00"
+          }
+        },
+        "p": {
+          "$binary": {
+            "base64": "P+eDtA9shfdhNYV17iFbIoqYyl1nTO7LA25DExmNJtACLA3R6TrJPRns6/crPoQemmlK",
+            "subType": "00"
+          }
+        }
+      },
+      {
+        "d": {
+          "$binary": {
+            "base64": "Abpp4Qvt/4B9WDrkzxnUeCEF+Ox43Ho++Oax6IUjZ5E=",
+            "subType": "00"
+          }
+        },
+        "s": {
+          "$binary": {
+            "base64": "kYFi+YZuQtPb9K0sPSc7F3A3A7eyHxwqKC2KWoVoVTk=",
+            "subType": "00"
+          }
+        },
+        "l": {
+          "$binary": {
+            "base64": "jLkrdV7luVlCPlyBPd77ZUyAtGkdFOXsGyJZzBAL1dk=",
+            "subType": "00"
+          }
+        },
+        "p": {
+          "$binary": {
+            "base64": "4qX03QHye5vwJJdMEMyJFeBuGjLZYZq9ZGfSAss6eDgVaBgtMPs9OiiVGofXFULA9nIw",
+            "subType": "00"
+          }
+        }
+      },
+      {
+        "d": {
+          "$binary": {
+            "base64": "Abpp4Qvt/4B9WDrkzxnUeCEF+Ox43Ho++Oax6IUjZ5E=",
+            "subType": "00"
+          }
+        },
+        "s": {
+          "$binary": {
+            "base64": "kYFi+YZuQtPb9K0sPSc7F3A3A7eyHxwqKC2KWoVoVTk=",
+            "subType": "00"
+          }
+        },
+        "l": {
+          "$binary": {
+            "base64": "jLkrdV7luVlCPlyBPd77ZUyAtGkdFOXsGyJZzBAL1dk=",
+            "subType": "00"
+          }
+        },
+        "p": {
+          "$binary": {
+            "base64": "4qX03QHye5vwJJdMEMyJFeBuGjLZYZq9ZGfSAss6eDgVaBgtMPs9OiiVGofXFULA9nIw",
+            "subType": "00"
+          }
+        }
+      },
+      {
+        "d": {
+          "$binary": {
+            "base64": "Abpp4Qvt/4B9WDrkzxnUeCEF+Ox43Ho++Oax6IUjZ5E=",
+            "subType": "00"
+          }
+        },
+        "s": {
+          "$binary": {
+            "base64": "kYFi+YZuQtPb9K0sPSc7F3A3A7eyHxwqKC2KWoVoVTk=",
+            "subType": "00"
+          }
+        },
+        "l": {
+          "$binary": {
+            "base64": "jLkrdV7luVlCPlyBPd77ZUyAtGkdFOXsGyJZzBAL1dk=",
+            "subType": "00"
+          }
+        },
+        "p": {
+          "$binary": {
+            "base64": "4qX03QHye5vwJJdMEMyJFeBuGjLZYZq9ZGfSAss6eDgVaBgtMPs9OiiVGofXFULA9nIw",
+            "subType": "00"
+          }
+        }
+      },
+      {
+        "d": {
+          "$binary": {
+            "base64": "Abpp4Qvt/4B9WDrkzxnUeCEF+Ox43Ho++Oax6IUjZ5E=",
+            "subType": "00"
+          }
+        },
+        "s": {
+          "$binary": {
+            "base64": "kYFi+YZuQtPb9K0sPSc7F3A3A7eyHxwqKC2KWoVoVTk=",
+            "subType": "00"
+          }
+        },
+        "l": {
+          "$binary": {
+            "base64": "jLkrdV7luVlCPlyBPd77ZUyAtGkdFOXsGyJZzBAL1dk=",
+            "subType": "00"
+          }
+        },
+        "p": {
+          "$binary": {
+            "base64": "4qX03QHye5vwJJdMEMyJFeBuGjLZYZq9ZGfSAss6eDgVaBgtMPs9OiiVGofXFULA9nIw",
+            "subType": "00"
+          }
+        }
+      },
+      {
+        "d": {
+          "$binary": {
+            "base64": "Abpp4Qvt/4B9WDrkzxnUeCEF+Ox43Ho++Oax6IUjZ5E=",
+            "subType": "00"
+          }
+        },
+        "s": {
+          "$binary": {
+            "base64": "kYFi+YZuQtPb9K0sPSc7F3A3A7eyHxwqKC2KWoVoVTk=",
+            "subType": "00"
+          }
+        },
+        "l": {
+          "$binary": {
+            "base64": "jLkrdV7luVlCPlyBPd77ZUyAtGkdFOXsGyJZzBAL1dk=",
+            "subType": "00"
+          }
+        },
+        "p": {
+          "$binary": {
+            "base64": "4qX03QHye5vwJJdMEMyJFeBuGjLZYZq9ZGfSAss6eDgVaBgtMPs9OiiVGofXFULA9nIw",
+            "subType": "00"
+          }
+        }
+      },
+      {
+        "d": {
+          "$binary": {
+            "base64": "Abpp4Qvt/4B9WDrkzxnUeCEF+Ox43Ho++Oax6IUjZ5E=",
+            "subType": "00"
+          }
+        },
+        "s": {
+          "$binary": {
+            "base64": "kYFi+YZuQtPb9K0sPSc7F3A3A7eyHxwqKC2KWoVoVTk=",
+            "subType": "00"
+          }
+        },
+        "l": {
+          "$binary": {
+            "base64": "jLkrdV7luVlCPlyBPd77ZUyAtGkdFOXsGyJZzBAL1dk=",
+            "subType": "00"
+          }
+        },
+        "p": {
+          "$binary": {
+            "base64": "4qX03QHye5vwJJdMEMyJFeBuGjLZYZq9ZGfSAss6eDgVaBgtMPs9OiiVGofXFULA9nIw",
+            "subType": "00"
+          }
+        }
+      },
+      {
+        "d": {
+          "$binary": {
+            "base64": "Abpp4Qvt/4B9WDrkzxnUeCEF+Ox43Ho++Oax6IUjZ5E=",
+            "subType": "00"
+          }
+        },
+        "s": {
+          "$binary": {
+            "base64": "kYFi+YZuQtPb9K0sPSc7F3A3A7eyHxwqKC2KWoVoVTk=",
+            "subType": "00"
+          }
+        },
+        "l": {
+          "$binary": {
+            "base64": "jLkrdV7luVlCPlyBPd77ZUyAtGkdFOXsGyJZzBAL1dk=",
+            "subType": "00"
+          }
+        },
+        "p": {
+          "$binary": {
+            "base64": "4qX03QHye5vwJJdMEMyJFeBuGjLZYZq9ZGfSAss6eDgVaBgtMPs9OiiVGofXFULA9nIw",
+            "subType": "00"
+          }
+        }
+      }
+    ]
+  }
+}
