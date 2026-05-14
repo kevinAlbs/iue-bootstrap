@@ -9,7 +9,7 @@ import bson
 from bson.codec_options import CodecOptions
 from pymongo import MongoClient, monitoring
 from pymongo.encryption import ClientEncryption
-from pymongo.encryption_options import AutoEncryptionOpts, TextOpts, PrefixOpts
+from pymongo.encryption_options import AutoEncryptionOpts, TextOpts, SubstringOpts
 from bson.json_util import dumps
 from pathlib import Path
 
@@ -53,20 +53,16 @@ def dump_FLE2InsertUpdatePayloadV2(payload, filepath):
     Path(filepath).write_text(dumps(annotated, indent=2))
 
 
-class CommandLogger(monitoring.CommandListener):
+class MonitorForAutoEncryption(monitoring.CommandListener):
+    def __init__(self):
+        self.dumped = False
+
     def started(self, event):
         if event.command_name != "insert":
             return
-        
-        if "secret" not in event.command["documents"][0]:
-            # Skip. May be be insert for key vault document.
-            return
-    
+
         auto_payload = event.command["documents"][0]["secret"]
-        print("Auto encrypted insert payload:")
-        print (dumps(auto_payload, indent=2))
-        dump_FLE2InsertUpdatePayloadV2(auto_payload, "auto_payload.json")
-            
+        dump_FLE2InsertUpdatePayloadV2(auto_payload, "auto_insert_payload.json")
 
     def succeeded(self, event):
         pass
@@ -75,19 +71,17 @@ class CommandLogger(monitoring.CommandListener):
         pass
 
 
-monitoring.register(CommandLogger())
-
 local_master_key = bytes.fromhex("327834342b786475546142426b593136457235447541446167687653347677646b67387470507033747a366756303141314377624439697451324846446750574f7038654d6143314f693736364a7a585a4264426462644d7572646f6e4a3164")
 kms_providers = {"local": {"key": local_master_key}}
 key_vault_namespace = "keyvault.datakeys"
-key_vault_client = MongoClient()
+key_vault_client = MongoClient(os.environ.get("MONGODB_URI", "mongodb://localhost:27017"))
 client_encryption = ClientEncryption(
     kms_providers, key_vault_namespace, key_vault_client, CodecOptions()
 )
 key_vault = key_vault_client["keyvault"]["datakeys"]
 key = key_vault.find_one({"keyAltNames": ["testKey"]})
 if key is None:
-    print ("Key not detected. Creating ...")
+    print("Key not detected. Creating ...")
     key_id = client_encryption.create_data_key("local", key_alt_names=["testKey"])
 else:
     print("Using key with _id:", key["_id"].hex())
@@ -102,18 +96,15 @@ encrypted_fields_map = {
                 "keyId": key_id,
                 "queries": [
                     {
-                        "queryType": "prefixPreview",
+                        "queryType": "substringPreview",
                         "strMinQueryLength": 2,
                         "strMaxQueryLength": 10,
+                        "strMaxLength": 20,
                         "caseSensitive": True,
                         "diacriticSensitive": True,
                         "contention": 0,
                     }
-                    # {
-                    #     "queryType": "equality",
-                    #     "contention": 0,
-                    # }
-                ]
+                ],
             },
         ],
     }
@@ -125,16 +116,61 @@ auto_encryption_opts = AutoEncryptionOpts(
     encrypted_fields_map=encrypted_fields_map,
     crypt_shared_lib_path=os.environ.get("CRYPT_SHARED_PATH"),
 )
-client = MongoClient(auto_encryption_opts=auto_encryption_opts)
+client = MongoClient(
+    os.environ.get("MONGODB_URI", "mongodb://localhost:27017"),
+    auto_encryption_opts=auto_encryption_opts,
+    event_listeners=[MonitorForAutoEncryption()],
+)
 client.db.drop_collection("coll")
 coll = client.db.create_collection("coll")
-coll.insert_one({"_id": 1, "secret": "foo"})
 
-# Do explicit encryption:
-explicit_payload = client_encryption.encrypt("foo", algorithm="textPreview", key_id=key_id, contention_factor=0, text_opts=TextOpts(prefix=PrefixOpts(strMinQueryLength=2, strMaxQueryLength=10), case_sensitive=True, diacritic_sensitive=True))
-print("Explicit encrypted insert payload:")
-print(dumps(explicit_payload, indent=2))
-dump_FLE2InsertUpdatePayloadV2(explicit_payload, "explicit_payload.json")
+# Insert and find with auto encryption:
+coll.insert_one({"_id": 1, "secret": "auto"})
+if not coll.find_one({"$expr": {"$encStrContains": {"input": "$secret", "substring": "auto"}}}):
+    print("ERROR! Did not find with auto encryption")
 
+# Explicit encrypt:
+explicit_insert_payload = client_encryption.encrypt(
+    value="explicit",
+    algorithm="textPreview",
+    key_id=key_id,
+    contention_factor=0,
+    text_opts=TextOpts(
+        substring=SubstringOpts(strMinQueryLength=2, strMaxQueryLength=10, strMaxLength=20),
+        case_sensitive=True,
+        diacritic_sensitive=True,
+    ),
+)
 
-print ("Dumped payloads to explicit_payload.json and auto_payload.json")
+explicit_query_payload = client_encryption.encrypt(
+    value="explicit",
+    query_type="substringPreview",
+    algorithm="textPreview",
+    key_id=key_id,
+    contention_factor=0,
+    text_opts=TextOpts(
+        substring=SubstringOpts(strMinQueryLength=2, strMaxQueryLength=10, strMaxLength=20),
+        case_sensitive=True,
+        diacritic_sensitive=True,
+    ),
+)
+
+# Use bypassQueryAnalysis=False to query:
+explicit_auto_encryption_opts = AutoEncryptionOpts(
+    kms_providers,
+    key_vault_namespace,
+    encrypted_fields_map=encrypted_fields_map,
+    crypt_shared_lib_path=os.environ.get("CRYPT_SHARED_PATH"),
+    bypass_query_analysis=True,
+)
+explicit_client = MongoClient(
+    os.environ.get("MONGODB_URI", "mongodb://localhost:27017"),
+    auto_encryption_opts=explicit_auto_encryption_opts,
+)
+explicit_coll = explicit_client.db.coll
+explicit_coll.insert_one({"secret": explicit_insert_payload})
+if not explicit_coll.find_one({"$expr": { "$encStrContains": { "input": "$secret", "substring": explicit_query_payload, }}}):
+    print ("ERROR! Did not find with explicit encryption")
+
+dump_FLE2InsertUpdatePayloadV2(explicit_insert_payload, "explicit_insert_payload.json")
+print("Dumped insert payloads to explicit_insert_payload.json and auto_insert_payload.json")
