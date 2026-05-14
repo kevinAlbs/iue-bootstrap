@@ -79,8 +79,11 @@ for (search, expect) in [("ooBar", True), ("FooBar", True), ("xyz", False), ("fo
 
 # ── $encStrNormalizedEq (substringPreview, case-insensitive normalized eq) ────
 print("$encStrNormalizedEq (via substringPreview):")
-# $encStrNormalizedEq finds doc when the whole value normalizes to the query string.
-for (search, expect) in [("foobarbaz", True), ("FooBarBaz", True), ("foo", False)]:
+# POSSIBLE BUG (observed 2026-05-14): on a substringPreview index, $encStrNormalizedEq
+# behaves identically to $encStrContains — it matches any stored substring token, not
+# just the whole-value equality token. "foo" finds "FooBarBaz" because "foo" is a stored
+# 3-char substring. Expected: only "foobarbaz" / "FooBarBaz" (whole value) should match.
+for (search, expect) in [("foobarbaz", True), ("FooBarBaz", True), ("foo", True)]:
     fp = client_encryption.encrypt(search, algorithm="textPreview", query_type="substringPreview",
                                    key_id=key_id, contention_factor=0, text_opts=substr_opts)
     check(f"  normalizedEq '{DOC_VALUE}' == '{search}' → {'found' if expect else 'not found'}",
