@@ -64,13 +64,13 @@ def make_collection(coll_name, case_sensitive, diacritic_sensitive):
         diacritic_sensitive=diacritic_sensitive,
     )
 
-def insert(coll, value, opts):
+def insert_doc(coll, value, opts):
     payload = client_encryption.encrypt(
         value, algorithm="textPreview", key_id=key_id, contention_factor=0, text_opts=opts)
     coll.delete_many({})
     coll.insert_one({"_id": 1, "secret": payload})
 
-def find_payload(value, opts):
+def make_find_payload(value, opts):
     return client_encryption.encrypt(
         value, algorithm="textPreview", query_type="substringPreview",
         key_id=key_id, contention_factor=0, text_opts=opts)
@@ -78,37 +78,37 @@ def find_payload(value, opts):
 # ── caseSensitive=False, diacriticSensitive=False ─────────────────────────────
 print("caseSensitive=False, diacriticSensitive=False:")
 coll, opts = make_collection("sens_ff", case_sensitive=False, diacritic_sensitive=False)
-insert(coll, "foo", opts)
-check("find 'foo' in 'foo' → found",    coll, {"$encStrContains": {"input": "$secret", "substring": find_payload("foo", opts)}}, True)
-check("find 'FOO' in 'foo' → found",    coll, {"$encStrContains": {"input": "$secret", "substring": find_payload("FOO", opts)}}, True)
-check("find 'bar' in 'foo' → not found",coll, {"$encStrContains": {"input": "$secret", "substring": find_payload("bar", opts)}}, False)
-insert(coll, "café", opts)
-check("find 'cafe' in 'café' → found",  coll, {"$encStrContains": {"input": "$secret", "substring": find_payload("cafe", opts)}}, True)
-check("find 'CAFE' in 'café' → found",  coll, {"$encStrContains": {"input": "$secret", "substring": find_payload("CAFE", opts)}}, True)
+insert_doc(coll, "foo", opts)
+check("find 'foo' in 'foo' → found",    coll, {"$encStrContains": {"input": "$secret", "substring": make_find_payload("foo", opts)}}, True)
+check("find 'FOO' in 'foo' → found",    coll, {"$encStrContains": {"input": "$secret", "substring": make_find_payload("FOO", opts)}}, True)
+check("find 'bar' in 'foo' → not found",coll, {"$encStrContains": {"input": "$secret", "substring": make_find_payload("bar", opts)}}, False)
+insert_doc(coll, "café", opts)
+check("find 'cafe' in 'café' → found",  coll, {"$encStrContains": {"input": "$secret", "substring": make_find_payload("cafe", opts)}}, True)
+check("find 'CAFE' in 'café' → found",  coll, {"$encStrContains": {"input": "$secret", "substring": make_find_payload("CAFE", opts)}}, True)
 
 # ── caseSensitive=True, diacriticSensitive=True ───────────────────────────────
 print("caseSensitive=True, diacriticSensitive=True:")
 coll, opts = make_collection("sens_tt", case_sensitive=True, diacritic_sensitive=True)
-insert(coll, "foo", opts)
-check("find 'foo' in 'foo' → found",    coll, {"$encStrContains": {"input": "$secret", "substring": find_payload("foo", opts)}}, True)
-check("find 'FOO' in 'foo' → not found",coll, {"$encStrContains": {"input": "$secret", "substring": find_payload("FOO", opts)}}, False)
-insert(coll, "café", opts)
-check("find 'café' in 'café' → found",  coll, {"$encStrContains": {"input": "$secret", "substring": find_payload("café", opts)}}, True)
-check("find 'cafe' in 'café' → not found",coll,{"$encStrContains": {"input": "$secret", "substring": find_payload("cafe", opts)}},False)
+insert_doc(coll, "foo", opts)
+check("find 'foo' in 'foo' → found",    coll, {"$encStrContains": {"input": "$secret", "substring": make_find_payload("foo", opts)}}, True)
+check("find 'FOO' in 'foo' → not found",coll, {"$encStrContains": {"input": "$secret", "substring": make_find_payload("FOO", opts)}}, False)
+insert_doc(coll, "café", opts)
+check("find 'café' in 'café' → found",  coll, {"$encStrContains": {"input": "$secret", "substring": make_find_payload("café", opts)}}, True)
+check("find 'cafe' in 'café' → not found",coll,{"$encStrContains": {"input": "$secret", "substring": make_find_payload("cafe", opts)}},False)
 
 # ── caseSensitive=True, diacriticSensitive=False ──────────────────────────────
 print("caseSensitive=True, diacriticSensitive=False:")
 coll, opts = make_collection("sens_tf", case_sensitive=True, diacritic_sensitive=False)
-insert(coll, "café", opts)
-check("find 'cafe' in 'café' → found",  coll, {"$encStrContains": {"input": "$secret", "substring": find_payload("cafe", opts)}}, True)
-check("find 'CAFE' in 'café' → not found",coll,{"$encStrContains": {"input": "$secret", "substring": find_payload("CAFE", opts)}},False)
+insert_doc(coll, "café", opts)
+check("find 'cafe' in 'café' → found",  coll, {"$encStrContains": {"input": "$secret", "substring": make_find_payload("cafe", opts)}}, True)
+check("find 'CAFE' in 'café' → not found",coll,{"$encStrContains": {"input": "$secret", "substring": make_find_payload("CAFE", opts)}},False)
 
 # ── caseSensitive=False, diacriticSensitive=True ──────────────────────────────
 print("caseSensitive=False, diacriticSensitive=True:")
 coll, opts = make_collection("sens_ft", case_sensitive=False, diacritic_sensitive=True)
-insert(coll, "café", opts)
-check("find 'CAFÉ' in 'café' → found",  coll, {"$encStrContains": {"input": "$secret", "substring": find_payload("CAFÉ", opts)}}, True)
-check("find 'cafe' in 'café' → not found",coll,{"$encStrContains": {"input": "$secret", "substring": find_payload("cafe", opts)}},False)
+insert_doc(coll, "café", opts)
+check("find 'CAFÉ' in 'café' → found",  coll, {"$encStrContains": {"input": "$secret", "substring": make_find_payload("CAFÉ", opts)}}, True)
+check("find 'cafe' in 'café' → not found",coll,{"$encStrContains": {"input": "$secret", "substring": make_find_payload("cafe", opts)}},False)
 
 if failures:
     print(f"\n{failures} failure(s).")
