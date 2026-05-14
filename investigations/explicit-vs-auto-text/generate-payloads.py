@@ -126,8 +126,11 @@ coll = client.db.create_collection("coll")
 
 # Insert and find with auto encryption:
 coll.insert_one({"_id": 1, "secret": "auto"})
-if not coll.find_one({"$expr": {"$encStrContains": {"input": "$secret", "substring": "auto"}}}):
-    print("ERROR! Did not find with auto encryption")
+print ("Finding with auto encryption ... ", end="", flush=True)
+if coll.find_one({"$expr": {"$encStrContains": {"input": "$secret", "substring": "auto"}}}):
+    print("OK")
+else:
+    print("NTO FOUND!")
 
 # Explicit encrypt:
 explicit_insert_payload = client_encryption.encrypt(
@@ -169,8 +172,11 @@ explicit_client = MongoClient(
 )
 explicit_coll = explicit_client.db.coll
 explicit_coll.insert_one({"secret": explicit_insert_payload})
-if not explicit_coll.find_one({"$expr": { "$encStrContains": { "input": "$secret", "substring": explicit_query_payload, }}}):
-    print ("ERROR! Did not find with explicit encryption")
+print ("Finding with explicit encryption ... ", end="", flush=True)
+if explicit_coll.find_one({"$expr": { "$encStrContains": { "input": "$secret", "substring": explicit_query_payload, }}}):
+    print ("OK")
+else:
+    print ("NOT FOUND!")
 
 dump_FLE2InsertUpdatePayloadV2(explicit_insert_payload, "explicit_insert_payload.json")
 print("Dumped insert payloads to explicit_insert_payload.json and auto_insert_payload.json")
