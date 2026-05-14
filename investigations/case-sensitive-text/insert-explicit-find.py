@@ -32,7 +32,6 @@ else:
     key_id = key["_id"]
 
 # Insert with auto-encryption:
-print ("Inserting auto-encrypted 'foo' with 'substringPreview' ...")
 encrypted_fields_map = {
     "db.coll": {
         "fields": [
@@ -46,7 +45,7 @@ encrypted_fields_map = {
                         "strMinQueryLength": 2,
                         "strMaxQueryLength": 10,
                         "strMaxLength": 10,
-                        "caseSensitive": False,
+                        "caseSensitive": True,
                         "diacriticSensitive": False,
                         "contention": 0,
                     }
@@ -63,10 +62,9 @@ client = MongoClient(os.environ.get("MONGODB_URI"), auto_encryption_opts=AutoEnc
 ))
 client.db.drop_collection("coll")
 coll = client.db.create_collection("coll")
-coll.insert_one({"_id": 1, "secret": "foo"})
-print ("Inserting auto-encrypted 'foo' with 'substringPreview' ... done")
+print ("Inserting explicit-encrypted 'FooBarBaz' with 'substringPreview' ...")
 
-# Find with explicit-encryption:
+# Insert with explicit-encryption:
 client_explicit = MongoClient(os.environ.get("MONGODB_URI"), auto_encryption_opts=AutoEncryptionOpts(
     kms_providers,
     key_vault_namespace,
@@ -75,18 +73,12 @@ client_explicit = MongoClient(os.environ.get("MONGODB_URI"), auto_encryption_opt
     bypass_query_analysis=True # No auto encryption
 ))
 
-print ("Finding 'foo' with '$encStrNormalizedEq' ...")
-explicit_payload = client_encryption.encrypt("foo", algorithm="textPreview", query_type="substringPreview", key_id=key_id, contention_factor=0, text_opts=TextOpts(substring=SubstringOpts(strMinQueryLength=2, strMaxQueryLength=10, strMaxLength=10), case_sensitive=False, diacritic_sensitive=False))
-got = client_explicit["db"]["coll"].find_one({ "$expr": { "$encStrNormalizedEq": {"input": "$secret", "string": explicit_payload} } })
-if got:
-    print ("Finding 'foo' with '$encStrNormalizedEq' ... found")
-else:
-    print ("Finding 'foo' with '$encStrNormalizedEq' ... NOT FOUND!")
+explicit_payload = client_encryption.encrypt("FooBarBaz", algorithm="textPreview", key_id=key_id, contention_factor=0, text_opts=TextOpts(substring=SubstringOpts(strMinQueryLength=2, strMaxQueryLength=10, strMaxLength=10), case_sensitive=True, diacritic_sensitive=False))
+client_explicit["db"]["coll"].insert_one({ "_id": 1, "secret": explicit_payload})
+print ("Inserting explicit-encrypted 'FooBarBaz' with 'substringPreview' ... done")
 
-print ("Finding 'FOO' with '$encStrNormalizedEq' ...")
-explicit_payload = client_encryption.encrypt("FOO", algorithm="textPreview", query_type="substringPreview", key_id=key_id, contention_factor=0, text_opts=TextOpts(substring=SubstringOpts(strMinQueryLength=2, strMaxQueryLength=10, strMaxLength=10), case_sensitive=False, diacritic_sensitive=False))
-got = client_explicit["db"]["coll"].find_one({ "$expr": { "$encStrNormalizedEq": {"input": "$secret", "string": explicit_payload} } })
-if got:
-    print ("Finding 'FOO' with '$encStrNormalizedEq' ... found")
-else:
-    print ("Finding 'FOO' with '$encStrNormalizedEq' ... NOT FOUND!")
+
+
+print ("Finding with auto-encrypted ...")
+print(coll.find_one({"_id": 1}))
+print ("Finding with auto-encrypted ... done")
