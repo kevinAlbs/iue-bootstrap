@@ -62,7 +62,7 @@ class MonitorForAutoEncryption(monitoring.CommandListener):
             return
 
         auto_payload = event.command["documents"][0]["secret"]
-        dump_FLE2InsertUpdatePayloadV2(auto_payload, "auto_insert_payload.json")
+        dump_FLE2InsertUpdatePayloadV2(auto_payload, "results/auto_insert_payload.json")
 
     def succeeded(self, event):
         pass
@@ -125,16 +125,18 @@ client.db.drop_collection("coll")
 coll = client.db.create_collection("coll")
 
 # Insert and find with auto encryption:
-coll.insert_one({"_id": 1, "secret": "auto"})
+coll.insert_one({"_id": 1, "secret": "foo"})
 print ("Finding with auto encryption ... ", end="", flush=True)
-if coll.find_one({"$expr": {"$encStrContains": {"input": "$secret", "substring": "auto"}}}):
+if coll.find_one({"$expr": {"$encStrContains": {"input": "$secret", "substring": "foo"}}}):
     print("OK")
 else:
-    print("NTO FOUND!")
+    print("NOT FOUND!")
+
+coll.delete_many({}) # Delete prior data.
 
 # Explicit encrypt:
 explicit_insert_payload = client_encryption.encrypt(
-    value="explicit",
+    value="foo",
     algorithm="textPreview",
     key_id=key_id,
     contention_factor=0,
@@ -146,7 +148,7 @@ explicit_insert_payload = client_encryption.encrypt(
 )
 
 explicit_query_payload = client_encryption.encrypt(
-    value="explicit",
+    value="foo",
     query_type="substringPreview",
     algorithm="textPreview",
     key_id=key_id,
@@ -178,5 +180,5 @@ if explicit_coll.find_one({"$expr": { "$encStrContains": { "input": "$secret", "
 else:
     print ("NOT FOUND!")
 
-dump_FLE2InsertUpdatePayloadV2(explicit_insert_payload, "explicit_insert_payload.json")
-print("Dumped insert payloads to explicit_insert_payload.json and auto_insert_payload.json")
+dump_FLE2InsertUpdatePayloadV2(explicit_insert_payload, "results/explicit_insert_payload.json")
+print("Dumped payloads to results/")
