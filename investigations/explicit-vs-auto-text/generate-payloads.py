@@ -13,6 +13,8 @@ from pymongo.encryption_options import AutoEncryptionOpts, TextOpts, SubstringOp
 from bson.json_util import dumps
 from pathlib import Path
 
+import pymongocrypt
+print("Using libmongocrypt version:", pymongocrypt.libmongocrypt_version())
 
 def dump_FLE2InsertUpdatePayloadV2(payload, filepath):
     """
@@ -52,17 +54,22 @@ def dump_FLE2InsertUpdatePayloadV2(payload, filepath):
 
     Path(filepath).write_text(dumps(annotated, indent=2))
 
+    print("b.e.d: {}".format(as_bson["b"]["e"]["d"].hex()))
+
+file_suffix = ""
 
 class MonitorForAutoEncryption(monitoring.CommandListener):
     def __init__(self):
         self.dumped = False
 
     def started(self, event):
+        global file_suffix
+
         if event.command_name != "insert":
             return
 
         auto_payload = event.command["documents"][0]["secret"]
-        dump_FLE2InsertUpdatePayloadV2(auto_payload, "results/auto_insert_payload.json")
+        dump_FLE2InsertUpdatePayloadV2(auto_payload, f"results/auto_insert_payload_{file_suffix}.json")
 
     def succeeded(self, event):
         pass
@@ -86,6 +93,7 @@ if key is None:
 else:
     print("Using key with _id:", key["_id"].hex())
     key_id = key["_id"]
+print()
 
 encrypted_fields_map = {
     "db.coll": {
@@ -100,8 +108,8 @@ encrypted_fields_map = {
                         "strMinQueryLength": 2,
                         "strMaxQueryLength": 10,
                         "strMaxLength": 20,
-                        "caseSensitive": True,
-                        "diacriticSensitive": True,
+                        "caseSensitive": False,
+                        "diacriticSensitive": False,
                         "contention": 0,
                     }
                 ],
@@ -125,60 +133,72 @@ client.db.drop_collection("coll")
 coll = client.db.create_collection("coll")
 
 # Insert and find with auto encryption:
-coll.insert_one({"_id": 1, "secret": "foo"})
-print ("Finding with auto encryption ... ", end="", flush=True)
-if coll.find_one({"$expr": {"$encStrContains": {"input": "$secret", "substring": "foo"}}}):
-    print("OK")
-else:
-    print("NOT FOUND!")
-
+plaintext="FOO"
+file_suffix="upper"
 coll.delete_many({}) # Delete prior data.
+desc=f"Finding '{plaintext}' with auto encryption ... "
+print (desc)
+coll.insert_one({"_id": 1, "secret": plaintext, "case": plaintext})
+if coll.find_one({"$expr": {"$encStrNormalizedEq": {"input": "$secret", "string": plaintext}}}):
+    print(desc + "OK")
+else:
+    print(desc + "NOT FOUND!")
+print()
 
-# Explicit encrypt:
-explicit_insert_payload = client_encryption.encrypt(
-    value="foo",
-    algorithm="textPreview",
-    key_id=key_id,
-    contention_factor=0,
-    text_opts=TextOpts(
-        substring=SubstringOpts(strMinQueryLength=2, strMaxQueryLength=10, strMaxLength=20),
-        case_sensitive=True,
-        diacritic_sensitive=True,
-    ),
-)
+plaintext="foo"
+file_suffix="lower"
+desc=f"Finding '{plaintext}' with auto encryption ... "
+coll.delete_many({}) # Delete prior data.
+print (desc)
+coll.insert_one({"_id": 1, "secret": plaintext, "case": plaintext})
+if coll.find_one({"$expr": {"$encStrNormalizedEq": {"input": "$secret", "string": plaintext}}}):
+    print (desc + "OK")
+else:
+    print (desc + "NOT FOUND!")
+print()
 
-explicit_query_payload = client_encryption.encrypt(
-    value="foo",
-    query_type="substringPreview",
-    algorithm="textPreview",
-    key_id=key_id,
-    contention_factor=0,
-    text_opts=TextOpts(
-        substring=SubstringOpts(strMinQueryLength=2, strMaxQueryLength=10, strMaxLength=20),
-        case_sensitive=True,
-        diacritic_sensitive=True,
-    ),
-)
-
-# Use bypassQueryAnalysis=False to query:
+# Insert and find with explicit encryption:
 explicit_auto_encryption_opts = AutoEncryptionOpts(
     kms_providers,
     key_vault_namespace,
     encrypted_fields_map=encrypted_fields_map,
     crypt_shared_lib_path=os.environ.get("CRYPT_SHARED_PATH"),
-    bypass_query_analysis=True,
+    bypass_query_analysis=True, # Use bypassQueryAnalysis=True
 )
 explicit_client = MongoClient(
     os.environ.get("MONGODB_URI", "mongodb://localhost:27017"),
     auto_encryption_opts=explicit_auto_encryption_opts,
 )
 explicit_coll = explicit_client.db.coll
-explicit_coll.insert_one({"secret": explicit_insert_payload})
-print ("Finding with explicit encryption ... ", end="", flush=True)
-if explicit_coll.find_one({"$expr": { "$encStrContains": { "input": "$secret", "substring": explicit_query_payload, }}}):
-    print ("OK")
-else:
-    print ("NOT FOUND!")
 
-dump_FLE2InsertUpdatePayloadV2(explicit_insert_payload, "results/explicit_insert_payload.json")
+plaintext="FOO"
+file_suffix="upper"
+coll.delete_many({}) # Delete prior data.
+explicit_insert_payload = client_encryption.encrypt(value=plaintext, algorithm="textPreview", key_id=key_id, contention_factor=0, text_opts=TextOpts(substring=SubstringOpts(strMinQueryLength=2, strMaxQueryLength=10, strMaxLength=20), case_sensitive=False, diacritic_sensitive=False))
+explicit_query_payload = client_encryption.encrypt(value=plaintext, query_type="substringPreview", algorithm="textPreview", key_id=key_id, contention_factor=0, text_opts=TextOpts(substring=SubstringOpts(strMinQueryLength=2, strMaxQueryLength=10, strMaxLength=20), case_sensitive=False, diacritic_sensitive=False))
+explicit_coll.insert_one({"secret": explicit_insert_payload})
+desc=f"Finding '{plaintext}' with explicit encryption ... "
+print (desc)
+dump_FLE2InsertUpdatePayloadV2(explicit_insert_payload, f"results/explicit_insert_payload_{file_suffix}.json")
+if explicit_coll.find_one({"$expr": { "$encStrNormalizedEq": { "input": "$secret", "string": explicit_query_payload }}}):
+    print (desc + "OK")
+else:
+    print (desc + "NOT FOUND!")
+print()
+
+plaintext="foo"
+file_suffix="lower"
+coll.delete_many({}) # Delete prior data.
+explicit_insert_payload = client_encryption.encrypt(value=plaintext, algorithm="textPreview", key_id=key_id, contention_factor=0, text_opts=TextOpts(substring=SubstringOpts(strMinQueryLength=2, strMaxQueryLength=10, strMaxLength=20), case_sensitive=False, diacritic_sensitive=False))
+explicit_query_payload = client_encryption.encrypt(value=plaintext, query_type="substringPreview", algorithm="textPreview", key_id=key_id, contention_factor=0, text_opts=TextOpts(substring=SubstringOpts(strMinQueryLength=2, strMaxQueryLength=10, strMaxLength=20), case_sensitive=False, diacritic_sensitive=False))
+explicit_coll.insert_one({"secret": explicit_insert_payload})
+desc=f"Finding '{plaintext}' with explicit encryption ... "
+print (desc)
+dump_FLE2InsertUpdatePayloadV2(explicit_insert_payload, f"results/explicit_insert_payload_{file_suffix}.json")
+if explicit_coll.find_one({"$expr": { "$encStrNormalizedEq": { "input": "$secret", "string": explicit_query_payload }}}):
+    print (desc + "OK")
+else:
+    print (desc + "NOT FOUND!")
+print()
+
 print("Dumped payloads to results/")
