@@ -139,7 +139,7 @@ coll.delete_many({}) # Delete prior data.
 desc=f"Inserting '{plaintext}' with auto encryption ... "
 print (desc)
 coll.insert_one({"_id": 1, "secret": plaintext, "case": plaintext})
-if coll.find_one({"$expr": {"$encStrNormalizedEq": {"input": "$secret", "string": plaintext}}}):
+if coll.find_one({"$expr": {"$encStrContains": {"input": "$secret", "substring": plaintext}}}):
     print(desc + "OK")
 else:
     print(desc + "NOT FOUND!")
@@ -151,7 +151,7 @@ desc=f"Inserting '{plaintext}' with auto encryption ... "
 coll.delete_many({}) # Delete prior data.
 print (desc)
 coll.insert_one({"_id": 1, "secret": plaintext, "case": plaintext})
-if coll.find_one({"$expr": {"$encStrNormalizedEq": {"input": "$secret", "string": plaintext}}}):
+if coll.find_one({"$expr": {"$encStrContains": {"input": "$secret", "substring": plaintext}}}):
     print (desc + "OK")
 else:
     print (desc + "NOT FOUND!")
@@ -180,7 +180,7 @@ explicit_coll.insert_one({"secret": explicit_insert_payload})
 desc=f"Inserting '{plaintext}' with explicit encryption ... "
 print (desc)
 dump_FLE2InsertUpdatePayloadV2(explicit_insert_payload, f"results/explicit_insert_payload_{file_suffix}.json")
-if explicit_coll.find_one({"$expr": { "$encStrNormalizedEq": { "input": "$secret", "string": explicit_query_payload }}}):
+if explicit_coll.find_one({"$expr": { "$encStrContains": { "input": "$secret", "substring": explicit_query_payload }}}):
     print (desc + "OK")
 else:
     print (desc + "NOT FOUND!")
@@ -195,7 +195,7 @@ explicit_coll.insert_one({"secret": explicit_insert_payload})
 desc=f"Inserting '{plaintext}' with explicit encryption ... "
 print (desc)
 dump_FLE2InsertUpdatePayloadV2(explicit_insert_payload, f"results/explicit_insert_payload_{file_suffix}.json")
-if explicit_coll.find_one({"$expr": { "$encStrNormalizedEq": { "input": "$secret", "string": explicit_query_payload }}}):
+if explicit_coll.find_one({"$expr": { "$encStrContains": { "input": "$secret", "substring": explicit_query_payload }}}):
     print (desc + "OK")
 else:
     print (desc + "NOT FOUND!")
