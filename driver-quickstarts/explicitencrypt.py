@@ -1,3 +1,11 @@
+# Run with: uv
+#
+# /// script
+# dependencies = [
+#   "pymongo[encryption]",
+# ]
+# ///
+
 import os
 from pymongo import MongoClient
 from pymongo.encryption import (

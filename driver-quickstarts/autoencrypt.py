@@ -1,3 +1,11 @@
+# Run with: uv
+#
+# /// script
+# dependencies = [
+#   "pymongo[encryption]",
+# ]
+# ///
+
 import os
 from bson.codec_options import CodecOptions
 from pymongo import MongoClient
