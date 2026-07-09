@@ -1,11 +1,8 @@
-# Explicit Encryption Quickstart (Java)
-
-Minimal end-to-end example of explicit (manual) Queryable Encryption using the
-MongoDB Java sync driver.
+Java QE String example.
 
 ## Prerequisites
 
-- A `mongod` running on `mongodb://localhost:27017` (enterprise, for QE).
+- A `mongod` 9.0+ running on `mongodb://localhost:27017` (enterprise, for QE).
 - Java 17+ and Gradle (see repo root for install notes).
 
 ## Run
