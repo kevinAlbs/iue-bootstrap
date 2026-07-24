@@ -129,100 +129,6 @@ class TestBsonTypes(TestCase):
             self.assertIsNotNone(got)
             self.assertValueEqual(got["secret"], value)
 
-    def test_csfle_auto_string_none(self):
-        self.create_collection(json_schema={
-            "bsonType": "object",
-            "properties": {
-                "secret": {
-                    "encrypt": {
-                        "bsonType": "string",
-                        # "none" means "random" for CSFLE since it does not support queries.
-                        "algorithm": "AEAD_AES_256_CBC_HMAC_SHA_512-Random",
-                        "keyId": [self.key_id],
-                    }
-                }
-            },
-        })
-    
-        coll = self.encrypted_client["db"]["coll"]
-        coll.insert_one({"_id": 0, "secret": "foo"})
-
-        # Expect encrypted:
-        raw = self.client["db"]["coll"].find_one({"_id": 0})
-        self.assertIsInstance(raw["secret"], Binary)
-        self.assertEqual(raw["secret"].subtype, 6)
-
-    def test_csfle_auto_string_equality(self):
-        self.create_collection(json_schema={
-            "bsonType": "object",
-            "properties": {
-                "secret": {
-                    "encrypt": {
-                        "bsonType": "string",
-                        "algorithm": "AEAD_AES_256_CBC_HMAC_SHA_512-Deterministic",
-                        "keyId": [self.key_id],
-                    }
-                }
-            },
-        })
-    
-        coll = self.encrypted_client["db"]["coll"]
-        coll.insert_one({"_id": 0, "secret": "foo"})
-
-        # Expect encrypted:
-        raw = self.client["db"]["coll"].find_one({"_id": 0})
-        self.assertIsInstance(raw["secret"], Binary)
-        self.assertEqual(raw["secret"].subtype, 6)
-
-        # Expect equality query supported:
-        got = coll.find_one({"secret": "foo"})
-        self.assertIsNotNone(got)
-        self.assertEqual(got["secret"], "foo")
-
-    def test_qe_auto_string_none(self):
-        self.create_collection(encrypted_fields={
-             "fields": [
-                {
-                    "path": "secret",
-                    "bsonType": "string",
-                    "keyId": self.key_id,
-                },
-            ],
-        })
-    
-        coll = self.encrypted_client["db"]["coll"]
-        coll.insert_one({"_id": 0, "secret": "foo"})
-
-        # Expect encrypted:
-        raw = self.client["db"]["coll"].find_one({"_id": 0})
-        self.assertIsInstance(raw["secret"], Binary)
-        self.assertEqual(raw["secret"].subtype, 6)
-
-    def test_qe_auto_string_equality(self):
-        self.create_collection(encrypted_fields={
-             "fields": [
-                {
-                    "path": "secret",
-                    "bsonType": "string",
-                    "keyId": self.key_id,
-                    "queries": [{ "queryType": "equality" }]
-                },
-            ],
-        })
-    
-        coll = self.encrypted_client["db"]["coll"]
-        coll.insert_one({"_id": 0, "secret": "foo"})
-
-        # Expect encrypted:
-        raw = self.client["db"]["coll"].find_one({"_id": 0})
-        self.assertIsInstance(raw["secret"], Binary)
-        self.assertEqual(raw["secret"].subtype, 6)
-
-        # Expect equality query supported:
-        got = coll.find_one({"secret": "foo"})
-        self.assertIsNotNone(got)
-        self.assertEqual(got["secret"], "foo")
-
     def test_csfle_auto_nested_object(self):
         # "obj.secret" is a string nested in an object.
         self.create_collection(json_schema={
@@ -358,10 +264,8 @@ QE_EQUALITY_UNSUPPORTED_CODE = 6338405
 
 def _add_tests():
     for bson_type, value in BSON_TYPES.items():
-        if bson_type == "string":
-            continue  # Already written by hand above.
-
         def csfle_none(self, bson_type=bson_type, value=value):
+            # "none" means "random" for CSFLE since it does not support queries.
             self.check_csfle(
                 bson_type, value, "AEAD_AES_256_CBC_HMAC_SHA_512-Random", query=False
             )
