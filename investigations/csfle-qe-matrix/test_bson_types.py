@@ -223,7 +223,108 @@ class TestBsonTypes(TestCase):
         self.assertIsNotNone(got)
         self.assertEqual(got["secret"], "foo")
 
+    def test_csfle_auto_nested_object(self):
+        # "obj.secret" is a string nested in an object.
+        self.create_collection(json_schema={
+            "bsonType": "object",
+            "properties": {
+                "obj": {
+                    "bsonType": "object",
+                    "properties": {
+                        "secret": {
+                            "encrypt": {
+                                "bsonType": "string",
+                                "algorithm": "AEAD_AES_256_CBC_HMAC_SHA_512-Deterministic",
+                                "keyId": [self.key_id],
+                            }
+                        }
+                    },
+                }
+            },
+        })
 
+        coll = self.encrypted_client["db"]["coll"]
+        coll.insert_one({"_id": 0, "obj": {"secret": "foo"}})
+
+        # Expect encrypted:
+        raw = self.client["db"]["coll"].find_one({"_id": 0})
+        self.assertIsInstance(raw["obj"]["secret"], Binary)
+        self.assertEqual(raw["obj"]["secret"].subtype, 6)
+
+        # Expect equality query supported:
+        got = coll.find_one({"obj.secret": "foo"})
+        self.assertIsNotNone(got)
+        self.assertEqual(got["obj"]["secret"], "foo")
+
+    def test_qe_auto_nested_object(self):
+        self.create_collection(encrypted_fields={
+            "fields": [
+                {
+                    "path": "obj.secret",
+                    "bsonType": "string",
+                    "keyId": self.key_id,
+                    "queries": [{"queryType": "equality"}],
+                },
+            ],
+        })
+
+        coll = self.encrypted_client["db"]["coll"]
+        coll.insert_one({"_id": 0, "obj": {"secret": "foo"}})
+
+        # Expect encrypted:
+        raw = self.client["db"]["coll"].find_one({"_id": 0})
+        self.assertIsInstance(raw["obj"]["secret"], Binary)
+        self.assertEqual(raw["obj"]["secret"].subtype, 6)
+
+        # Expect equality query supported:
+        got = coll.find_one({"obj.secret": "foo"})
+        self.assertIsNotNone(got)
+        self.assertEqual(got["obj"]["secret"], "foo")
+
+    def test_csfle_auto_nested_array(self):
+        # "arr.secret" is a string nested in an object inside an array.
+        self.create_collection(json_schema={
+            "bsonType": "object",
+            "properties": {
+                "arr": {
+                    "bsonType": "array",
+                    "items": {
+                        "bsonType": "object",
+                        "properties": {
+                            "secret": {
+                                "encrypt": {
+                                    "bsonType": "string",
+                                    "algorithm": "AEAD_AES_256_CBC_HMAC_SHA_512-Deterministic",
+                                    "keyId": [self.key_id],
+                                }
+                            }
+                        },
+                    },
+                }
+            },
+        })
+
+        coll = self.encrypted_client["db"]["coll"]
+        # Expect unsupported: 'encrypt' is not permitted under 'items'.
+        with self.assertFailsWithCode(51077):
+            coll.insert_one({"_id": 0, "arr": [{"secret": "foo"}]})
+
+    def test_qe_auto_nested_array(self):
+        self.create_collection(encrypted_fields={
+            "fields": [
+                {
+                    "path": "arr.secret",
+                    "bsonType": "string",
+                    "keyId": self.key_id,
+                    "queries": [{"queryType": "equality"}],
+                },
+            ],
+        })
+
+        coll = self.encrypted_client["db"]["coll"]
+        # The encryptedFields config is accepted, but an array at 'arr' is not.
+        with self.assertFailsWithCode(31006):
+            coll.insert_one({"_id": 0, "arr": [{"secret": "foo"}]})
 
 
 # BSON types under test, with a representative Python value.
@@ -238,6 +339,8 @@ BSON_TYPES = {
     "int": 1,
     "long": Int64(1),
     "decimal": Decimal128("1.5"),
+    # Not Timestamp(0, 0): the server replaces a zero timestamp on insert, so
+    # crypt_shared refuses to encrypt it (code 51129).
     "timestamp": Timestamp(1, 1),
 }
 
