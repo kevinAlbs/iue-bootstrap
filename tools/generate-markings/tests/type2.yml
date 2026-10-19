@@ -1,6 +1,5 @@
 # To test, run:
 #   cat tests/type2.yml | python run_cmd.py --port 27020 --db db
-# Use the `dump_payload` tool in this repo to print info about the output payload.
 {
     "find": "test",
     "filter": {
