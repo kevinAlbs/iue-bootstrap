@@ -1,4 +1,4 @@
-# Run with: uv
+# Run with: uv run nondefault-metadata.py
 #
 # /// script
 # dependencies = [
@@ -44,8 +44,9 @@ auto_encryption_opts = AutoEncryptionOpts(
     crypt_shared_lib_path=os.environ.get("CRYPT_SHARED_PATH"),
 )
 client = MongoClient(auto_encryption_opts=auto_encryption_opts)
+print ("Using server {}".format(client.db.command({"buildInfo": 1})["version"]))
 client.db.drop_collection("coll")
-coll = client.db.create_collection("coll")
-coll.insert_one({"_id": 1, "secret": "foo"})
-docs = list(coll.find({}))
-print(docs)
+try:
+    coll = client.db.create_collection("coll")
+except Exception as e:
+    print (e)
